@@ -1,0 +1,60 @@
+name: Makefile CI
+
+on:
+  push:
+    branches: [ "main" ]
+  pull_request:
+    branches: [ "main" ]
+    
+jobs:
+  build:
+    runs-on: macos-14
+    steps:
+      - uses: actions/checkout@main
+
+      - name: Fetch Orion's latest commit
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          latest_commit=$(gh api -H 'Accept: application/vnd.github.sha' \
+          /repos/theos/orion/commits/master); echo "latest_commit=$latest_commit" >> $GITHUB_OUTPUT
+        id: commit
+
+      - uses: actions/cache@v4
+        id: cache-theos
+        with:
+          path: /Users/runner/work/Chrissa/Chrissa/theos
+          key: steps.commit.outputs.latest_commit
+
+      - name: Checkout theos/theos
+        if: steps.cache-theos.outputs.cache-hit != 'true'
+        uses: actions/checkout@main
+        with:
+          repository: theos/theos
+          ref: master
+          submodules: recursive
+          path: theos
+
+      - name: Checkout theos/sdks
+        uses: actions/checkout@main
+        with:
+          repository: theos/sdks
+          ref: master
+          sparse-checkout: iPhoneOS16.5.sdk
+          path: theos/sdks
+
+      - name: Build
+        run: |
+          brew install make ldid
+          echo 'let _apiKey = ${{ secrets.API_KEY }}' > ${{ github.workspace }}/Sources/Utilities/_Constants.swift
+          THEOS=theos gmake clean package TARGET="iphone:clang:16.5:14.0" THEOS_PACKAGE_SCHEME=rootless
+
+          export THEOS="$(pwd)/theos"
+          for PROJECT in Examples/ObjC/ Examples/Swift/ ; do
+            gmake -C "${PROJECT}" clean package TARGET="iphone:clang:16.5:14.0" FINALPACKAGE=1 THEOS_PACKAGE_DIR_NAME="../../packages" THEOS_PACKAGE_SCHEME=rootless
+          done
+
+      - name: Upload artifact
+        uses: actions/upload-artifact@v3
+        with:
+          path: "**/packages/*.deb"

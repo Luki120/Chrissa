@@ -1,0 +1,9 @@
+Package: me.luki.chrissa
+Name: Chrissa
+Version: 0.9.0
+Architecture: iphoneos-arm
+Description: An awesome framework of some sort!!
+Maintainer: Luki
+Author: Luki
+Section: System
+Tag: role::developer

@@ -1,0 +1,13 @@
+framework module Chrissa {
+	umbrella header "Chrissa.h"
+
+	private header "CLLocationManager+Private.h"
+
+	export *
+	module * { export * }
+}
+
+module Chrissa.Swift {
+	header "Chrissa-Swift.h"
+	requires objc
+}
