@@ -23,7 +23,7 @@ jobs:
       - uses: actions/cache@v4
         id: cache-theos
         with:
-          path: /Users/runner/work/Chrissa/Chrissa/theos
+          path: ${{ github.workspace }}/theos
           key: steps.commit.outputs.latest_commit
 
       - name: Checkout theos/theos
