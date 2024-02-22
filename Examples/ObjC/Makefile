@@ -3,7 +3,7 @@ INSTALL_TARGET_PROCESSES = SpringBoard
 
 TWEAK_NAME = Rhus
 
-Rhus_FILES = $(wildcard */**.m) $(wildcard */**.x)
+Rhus_FILES = $(wildcard */**.m)
 Rhus_CFLAGS = -fobjc-arc
 Rhus_EXTRA_FRAMEWORKS = Chrissa
 
