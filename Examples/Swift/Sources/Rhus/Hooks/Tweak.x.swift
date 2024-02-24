@@ -9,54 +9,27 @@ class SBFLockScreenDateVCHook: ClassHook<UIViewController> {
 
 	static let targetName = "SBFLockScreenDateViewController"
 
-	private let weatherViewModel = WeatherViewModel()
-
-	@Property(.nonatomic) private var weatherLabel = UILabel()
+	@Property(.nonatomic) private(set) var weatherView = WeatherView()
 
 	func viewDidLoad() {
 		orig.viewDidLoad()
 
 		lsDateVC = self
-		drawContent()
 
-		weatherLabel.numberOfLines = 0
-		weatherLabel.textAlignment = .center
-		weatherLabel.translatesAutoresizingMaskIntoConstraints = false
-		target.view.addSubview(weatherLabel)
+		weatherView.translatesAutoresizingMaskIntoConstraints = false
+		target.view.addSubview(weatherView)
 
 		NSLayoutConstraint.activate([
-			weatherLabel.topAnchor.constraint(equalTo: target.view.bottomAnchor, constant: 10),
-			weatherLabel.leadingAnchor.constraint(equalTo: target.view.leadingAnchor),
-			weatherLabel.trailingAnchor.constraint(equalTo: target.view.trailingAnchor)
+			weatherView.topAnchor.constraint(equalTo: target.view.bottomAnchor, constant: 10),
+			weatherView.leadingAnchor.constraint(equalTo: target.view.leadingAnchor),
+			weatherView.trailingAnchor.constraint(equalTo: target.view.trailingAnchor)
 		])
 	}
 
-	// orion:new
-	func drawContent() {
-		DispatchQueue.main.asyncAfter(deadline: .now() + 3) {
-			self.weatherViewModel.updateWeather()
-			self.weatherLabel.text = "\(self.weatherViewModel.name) | \(self.weatherViewModel.temperature)º"
-		}
-	}
-
-	// orion:new
-	func refreshContent() {
-		DispatchQueue.main.async {
-			self.weatherViewModel.updateWeather()
-			self.weatherLabel.text = ""
-			self.weatherLabel.text = "\(self.weatherViewModel.name) | \(self.weatherViewModel.temperature)º"
-		}
-	}
-
-}
-
-class CSCoverSheetVCHook: ClassHook<UIViewController> {
-
-	static let targetName = "CSCoverSheetViewController"
-
 	func viewWillAppear(_ animated: Bool) {
 		orig.viewWillAppear(animated)
-		lsDateVC.refreshContent()
+		weatherView.updateWeather()
+		weatherView.updateLabel()
 	}
 
 }
@@ -78,32 +51,7 @@ class SBBacklightControllerHook: ClassHook<NSObject> {
 
 	func turnOnScreenFullyWithBacklightSource(_ source: Int) {
 		orig.turnOnScreenFullyWithBacklightSource(source)
-		lsDateVC.refreshContent()
+		lsDateVC.weatherView.updateWeather()
 	}
 
 }
-
-// SwiftUI
-
-/*
-final class HostingController<Content>: UIHostingController<Content> where Content: View {
-
-	override func _canShowWhileLocked() -> Bool {
-		return true
-	}
-
-}
-
-let vc = HostingController(rootView: WeatherView())
-vc.view.backgroundColor = .clear
-vc.view.translatesAutoresizingMaskIntoConstraints = false
-
-target.addChild(vc)
-target.view.addSubview(vc.view)
-
-NSLayoutConstraint.activate([
-	vc.view.topAnchor.constraint(equalTo: target.view.bottomAnchor, constant: 10),
-	vc.view.leadingAnchor.constraint(equalTo: target.view.leadingAnchor),
-	vc.view.trailingAnchor.constraint(equalTo: target.view.trailingAnchor)
-])
-*/

@@ -1,36 +1,48 @@
-import SwiftUI
+import UIKit
 
 
-struct WeatherView: View {
+final class WeatherView: UIView {
 
-	@StateObject private var viewModel = WeatherViewModel()
+	private let weatherViewModel = WeatherViewModel()
 
-	@State private var text = ""
+	private lazy var weatherLabel: UILabel = {
+		let label = UILabel()
+		label.numberOfLines = 0
+		label.textAlignment = .center
+		label.translatesAutoresizingMaskIntoConstraints = false
+		addSubview(label)
+		return label
+	}()
 
-	var body: some View {
-		VStack(spacing: 2) {
-			Button("\(text != "" ? text : viewModel.condition.capitalized) | \(viewModel.temperature)º") {}
-			.frame(maxWidth: .infinity, alignment: .center)
-			.foregroundColor(.primary)
-			.onReceive(NotificationCenter.default.publisher(for: Notification.Name("me.luki.refresh"))) { _ in
-				text = viewModel.name
-				viewModel.updateWeather()
-			}
+	// ! Lifecycle
 
-			if let sunrise = viewModel.sunrise, let sunset = viewModel.sunset {
-				HStack(spacing: 4) {
-					SunriseSunsetLabel(name: "sunrise.fill", text: sunrise)
-					SunriseSunsetLabel(name: "sunset.fill", text: sunset)
-				}
-			}
-		}
+	required init?(coder: NSCoder) {
+		super.init(coder: coder)
 	}
 
-	@ViewBuilder
-	private func SunriseSunsetLabel(name: String, text: String) -> some View {
-		HStack(spacing: 2) {
-			Image(systemName: name)
-			Text(text)
+	override init(frame: CGRect) {
+		super.init(frame: frame)
+	}
+
+	override func layoutSubviews() {
+		super.layoutSubviews()
+
+		NSLayoutConstraint.activate([
+			weatherLabel.topAnchor.constraint(equalTo: topAnchor),
+			weatherLabel.bottomAnchor.constraint(equalTo: bottomAnchor),
+			weatherLabel.leadingAnchor.constraint(equalTo: leadingAnchor),
+			weatherLabel.trailingAnchor.constraint(equalTo: trailingAnchor)
+		])		
+	}
+
+	func updateWeather() {
+		self.weatherViewModel.updateWeather()
+	}
+
+	func updateLabel() {
+		DispatchQueue.main.async {
+			self.weatherLabel.text = ""
+			self.weatherLabel.text = "\(self.weatherViewModel.name) | \(self.weatherViewModel.temperature)º"
 		}
 	}
 
