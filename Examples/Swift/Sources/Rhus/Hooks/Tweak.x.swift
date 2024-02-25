@@ -26,10 +26,16 @@ class SBFLockScreenDateVCHook: ClassHook<UIViewController> {
 		])
 	}
 
+}
+
+class CSCoverSheetVCHook: ClassHook<UIViewController> {
+
+	static let targetName = "CSCoverSheetViewController"
+
 	func viewWillAppear(_ animated: Bool) {
 		orig.viewWillAppear(animated)
-		weatherView.updateWeather()
-		weatherView.updateLabel()
+		lsDateVC.weatherView.updateWeather()
+		lsDateVC.weatherView.updateLabel()
 	}
 
 }

@@ -3,13 +3,12 @@ import Combine
 import Foundation
 
 
-final class WeatherViewModel: ObservableObject {
+final class WeatherViewViewModel: ObservableObject {
 
 	private var subscriptions = Set<AnyCancellable>()
 
-	@Published private(set) var name = ""
+	@Published private(set) var weatherText = ""
 	@Published private(set) var condition = ""
-	@Published private(set) var temperature = ""
 
 	@Published private(set) var sunrise: String?
 	@Published private(set) var sunset: String?
@@ -45,17 +44,22 @@ final class WeatherViewModel: ObservableObject {
 			.receive(on: DispatchQueue.main)
 			.sink(receiveCompletion: { _ in }) { [weak self] weather in
 				guard let self, let _weather = weather.weather.first else { return }
-				self.name = weather.name
+
 				self.condition = _weather.condition
 
+				let icons = WeatherService.shared.icons
+				guard let icon = icons[_weather.icon] else { return }
+
 				let temperature = weather.main.temp - 273.15
-				self.temperature = WeatherViewModel.numberFormatter.string(from: temperature as NSNumber) ?? "0º"
+				let celsiusTemperature = WeatherViewViewModel.numberFormatter.string(from: temperature as NSNumber) ?? "0º"
 
 				let sunriseDate = Date(timeIntervalSince1970: weather.sys.sunrise)
 				let sunsetDate = Date(timeIntervalSince1970: weather.sys.sunset)
 
-				self.sunrise = WeatherViewModel.dateFormatter.string(from: sunriseDate)
-				self.sunset = WeatherViewModel.dateFormatter.string(from: sunsetDate)
+				self.sunrise = WeatherViewViewModel.dateFormatter.string(from: sunriseDate)
+				self.sunset = WeatherViewViewModel.dateFormatter.string(from: sunsetDate)
+
+				self.weatherText = "\(icon) \(weather.name) | \(celsiusTemperature)º"
 			}
 			.store(in: &subscriptions)
 	}
