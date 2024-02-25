@@ -15,8 +15,10 @@
 	self = [super init];
 	if(!self) return nil;
 
-	_dateFormatter = [NSDateFormatter new];
-	_dateFormatter.dateFormat = @"HH:mm";
+	if(!_dateFormatter) {
+		_dateFormatter = [NSDateFormatter new];
+		_dateFormatter.dateFormat = @"HH:mm";
+	}
 
 	return self;
 

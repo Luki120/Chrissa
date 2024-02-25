@@ -61,6 +61,13 @@
 	for(UIView *view in @[_sunriseImageView, _sunriseLabel, _sunsetImageView, _sunsetLabel])
 		[_sunriseSunsetStackView addArrangedSubview: view];
 
+}
+
+
+- (void)layoutSubviews {
+
+	[super layoutSubviews];
+
 	[NSLayoutConstraint activateConstraints:@[
 		[_weatherLabel.topAnchor constraintEqualToAnchor: self.topAnchor],
 		[_weatherLabel.bottomAnchor constraintEqualToAnchor: self.bottomAnchor],
@@ -69,13 +76,12 @@
 
 		[_sunriseSunsetStackView.topAnchor constraintEqualToAnchor: _weatherLabel.bottomAnchor constant: 5],
 		[_sunriseSunsetStackView.centerXAnchor constraintEqualToAnchor: _weatherLabel.centerXAnchor],
-
-		[_sunriseImageView.widthAnchor constraintEqualToConstant: 25],
-		[_sunriseImageView.heightAnchor constraintEqualToConstant: 25],
-
-		[_sunsetImageView.widthAnchor constraintEqualToConstant: 25],
-		[_sunsetImageView.heightAnchor constraintEqualToConstant: 25],
 	]];
+
+	for(UIImageView *imageView in @[_sunriseImageView, _sunsetImageView]) {
+		[imageView.widthAnchor constraintEqualToConstant: 25].active = YES;
+		[imageView.heightAnchor constraintEqualToConstant: 25].active = YES;
+	}
 
 }
 
