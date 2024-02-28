@@ -16,14 +16,43 @@ public final class WeatherService: NSObject, ObservableObject {
 		static let apiKey = "&appid=\(_apiKey)"
 	}
 
+	private enum Condition: String {
+		case fog
+		case haze
+		case mist
+		case smoke
+		case tornado
+
+		var name: String {
+			switch self {
+				case .fog, .haze, .mist: return "🌫️"
+				case .smoke: return "💨"
+				case .tornado: return "🌪️"
+			}
+		}
+	}
+
 	@objc
-	public let icons = [
+	@Published public var condition = ""
+
+	@objc
+	public private(set) var icons = [
 		"01d": "☀️",
 		"01n": "🌙",
+		"02d": "⛅",
+		"02n": "☁️",
 		"03d": "☁️",
 		"03n": "☁️",
 		"04d": "☁️",
-		"04n": "☁️"
+		"04n": "☁️",
+		"09d": "🌧️",
+		"09n": "🌧️",
+		"10d": "🌦️",
+		"10n": "🌧️",
+		"11d": "⛈",
+		"11n": "⛈",
+		"13d": "❄️",
+		"13n": "❄️"
 	]
 
 	private override init() {
@@ -41,6 +70,9 @@ extension WeatherService {
 
 		let apiURL = "\(Constants.apiURL)lat=\(locationService.latitude)&lon=\(locationService.longitude)\(Constants.apiKey)"
 		guard let url = URL(string: apiURL) else { throw URLError(.badURL) }
+
+		icons["50d"] = Condition(rawValue: condition)?.name ?? ""
+		icons["50n"] = Condition(rawValue: condition)?.name ?? ""
 
 		return URLSession.shared.dataTaskPublisher(for: url)
 			.tryMap { data, _ in
