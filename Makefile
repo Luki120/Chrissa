@@ -2,8 +2,8 @@ TARGET := iphone:clang:latest:14.0
 
 FRAMEWORK_NAME = Chrissa
 
-Chrissa_FILES = $(filter-out Examples/Swift/Package.swift, $(wildcard */**/**.swift)) Sources/Utilities/Chrissa.m
-Chrissa_CFLAGS = -fobjc-arc "-DAPI_KEY"
+Chrissa_FILES = $(filter-out Examples/Swift/Package.swift Examples/SwiftUI/Package.swift, $(wildcard */**/**.swift)) Sources/Utilities/Chrissa.m
+Chrissa_CFLAGS = -fobjc-arc
 Chrissa_INSTALL_PATH = /Library/Frameworks
 Chrissa_PUBLIC_HEADERS = Sources/Headers/Chrissa.h Sources/Headers/CLLocationManager+Private.h
 Chrissa_SWIFT_BRIDGING_HEADER = Sources/Headers/Chrissa-Bridging-Header.h
