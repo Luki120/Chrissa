@@ -1,0 +1,9 @@
+Package: me.luki.rhusswiftui
+Name: Rhus
+Version: 0.9.0
+Architecture: iphoneos-arm
+Description: An awesome Orion tweak!
+Maintainer: Luki
+Author: Luki
+Section: Tweaks
+Depends: ${ORION}, firmware (>= 12.2)
