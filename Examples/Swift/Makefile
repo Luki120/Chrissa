@@ -3,8 +3,8 @@ INSTALL_TARGET_PROCESSES = SpringBoard
 
 TWEAK_NAME = Rhus
 
-Rhus_FILES = $(shell find Sources/Rhus -name '*.swift') $(shell find Sources/RhusC -name '*.m' -o -name '*.c' -o -name '*.mm' -o -name '*.cpp')
-Rhus_CFLAGS = -fobjc-arc -ISourcesRhusC/include
+Rhus_FILES = $(wildcard */**/**.m) $(wildcard */**/**/**.swift)
+Rhus_CFLAGS = -fobjc-arc -ISources/RhusC/include
 Rhus_SWIFTFLAGS = -ISources/RhusC/include
 Rhus_EXTRA_FRAMEWORKS = Chrissa
 
