@@ -57,6 +57,10 @@ class SBBacklightControllerHook: ClassHook<NSObject> {
 
 	func turnOnScreenFullyWithBacklightSource(_ source: Int) {
 		orig.turnOnScreenFullyWithBacklightSource(source)
+
+		guard let SBLockScreenManager = NSClassFromString("SBLockScreenManager") else { return }
+
+		if !SBLockScreenManager.sharedInstance().isLockScreenVisible() { return }
 		lsDateVC.weatherView.updateWeather()
 	}
 
