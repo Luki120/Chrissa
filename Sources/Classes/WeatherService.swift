@@ -5,6 +5,7 @@ import UIKit
 @objc(CHWeatherService)
 public final class WeatherService: NSObject, ObservableObject {
 
+	/// Shared instance
 	@objc(sharedInstance)
 	public static let shared = WeatherService()
 
@@ -32,9 +33,11 @@ public final class WeatherService: NSObject, ObservableObject {
 		}
 	}
 
+	/// String that represents the current weather condition
 	@objc
 	@Published public var condition = ""
 
+	/// Dictionary that sets a weather emoji for the current weather condition code
 	@objc
 	public private(set) var icons = [
 		"01d": "☀️",
@@ -61,10 +64,14 @@ public final class WeatherService: NSObject, ObservableObject {
 
 }
 
-// ! Public
-
 extension WeatherService {
 
+	// ! Public
+
+	/// Combine function to make API calls
+	/// - Parameters:
+	///		- expecting: The type that conforms to Codable
+	/// Returns: AnyPublisher of generic type T & Error
 	public func fetchWeather<T: Codable>(expecting type: T.Type = WeatherModel.self) throws -> AnyPublisher<T, Error> {
 		locationService.forceEnableLocation()
 
@@ -83,6 +90,9 @@ extension WeatherService {
 			.eraseToAnyPublisher()
 	}
 
+	/// Function to make API calls
+	/// - Parameters:
+	///		- completion: Escaping closure that takes a WeatherModel object as argument & returns nothing
 	@objc
 	public func fetchWeather(completion: @escaping (WeatherModel) -> Void) {
 		try? fetchWeather()
@@ -93,6 +103,9 @@ extension WeatherService {
 			.store(in: &subscriptions)
 	}
 
+	/// Function to start or stop updating location based on a given condition
+	/// - Parameters:
+	///		- update: Boolean that represents the condition for updating the location
 	@objc
 	public func updateLocation(_ update: Bool) {
 		locationService.startUpdatingLocation(update)
