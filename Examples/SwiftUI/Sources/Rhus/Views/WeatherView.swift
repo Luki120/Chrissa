@@ -3,8 +3,8 @@ import SwiftUI
 
 struct WeatherView: View {
 
-	@StateObject
-	private var viewModel = WeatherViewViewModel()
+	@ObservedObject
+	private(set) var viewModel: WeatherViewViewModel
 
 	var body: some View {
 		VStack(spacing: 2) {
@@ -12,7 +12,7 @@ struct WeatherView: View {
 				.frame(maxWidth: .infinity, alignment: .center)
 				.foregroundColor(.primary)
 				.onReceive(NotificationCenter.default.publisher(for: .didRefreshWeatherDataNotification)) { _ in
-					updateWeather()
+					viewModel.updateWeather()
 				}
 
 			if let sunrise = viewModel.sunrise, let sunset = viewModel.sunset {
@@ -21,10 +21,6 @@ struct WeatherView: View {
 					SunriseSunsetLabel(name: "sunset.fill", text: sunset)
 				}
 			}
-		}
-
-		if #available(iOS 15.0, *) {
-			let _ = NSLog("AZURE: changes ⇝ \(Self._printChanges())")
 		}
 	}
 
@@ -38,9 +34,4 @@ struct WeatherView: View {
 		}
 	}
 
-	// ! Public
-
-	func updateWeather() {
-		viewModel.updateWeather()
-	}
 }

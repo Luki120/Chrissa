@@ -39,7 +39,6 @@ final class WeatherViewViewModel: ObservableObject {
 	}
 
 	func updateWeather() {
-		NSLog("AZURE: should refresh ⇝ \(shouldRefresh())")
 		guard shouldRefresh() else { return }
 
 		try? WeatherService.shared.fetchWeather()
@@ -70,9 +69,8 @@ final class WeatherViewViewModel: ObservableObject {
 		lastRefreshDate = Date()
 	}
 
-	func shouldRefresh() -> Bool {
-		NSLog("AZURE: lastRefreshDate ⇝ \(lastRefreshDate)")
-		return -(lastRefreshDate.timeIntervalSinceNow) > 300
+	private func shouldRefresh() -> Bool {
+		return -lastRefreshDate.timeIntervalSinceNow > 300
 	}
 
 }

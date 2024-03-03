@@ -11,14 +11,14 @@ class SBFLockScreenDateVCHook: ClassHook<UIViewController> {
 
 	static let targetName = "SBFLockScreenDateViewController"
 
-	@Property(.nonatomic) private(set) var weatherView = WeatherView()
+	@Property(.nonatomic) private(set) var weatherViewViewModel = WeatherViewViewModel()
 
 	func viewDidLoad() {
 		orig.viewDidLoad()
 
 		lsDateVC = self
 
-		let vc = HostingController(rootView: weatherView)
+		let vc = HostingController(rootView: WeatherView(viewModel: weatherViewViewModel))
 		vc.view.backgroundColor = .clear
 		vc.view.translatesAutoresizingMaskIntoConstraints = false
 
@@ -40,7 +40,7 @@ class CSCoverSheetVCHook: ClassHook<UIViewController> {
 
 	func viewWillAppear(_ animated: Bool) {
 		orig.viewWillAppear(animated)
-		lsDateVC.weatherView.updateWeather()
+		lsDateVC.weatherViewViewModel.updateWeather()
 	}
 
 }
