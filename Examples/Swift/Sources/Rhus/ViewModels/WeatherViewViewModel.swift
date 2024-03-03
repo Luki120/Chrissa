@@ -5,13 +5,12 @@ import Foundation
 
 final class WeatherViewViewModel: ObservableObject {
 
-	private var subscriptions = Set<AnyCancellable>()
-
 	@Published private(set) var weatherText = ""
-	@Published private(set) var condition = ""
-
 	@Published private(set) var sunrise: String?
 	@Published private(set) var sunset: String?
+
+	private var lastRefreshDate: Date = .distantPast
+	private var subscriptions = Set<AnyCancellable>()
 
 	static private let dateFormatter: DateFormatter = {
 		let formatter = DateFormatter()
@@ -40,28 +39,38 @@ final class WeatherViewViewModel: ObservableObject {
 	}
 
 	func updateWeather() {
+		guard shouldRefresh() else { return }
+
 		try? WeatherService.shared.fetchWeather()
 			.receive(on: DispatchQueue.main)
-			.sink(receiveCompletion: { _ in }) { [weak self] weather in
-				guard let self, let _weather = weather.weather.first else { return }
+			.sink(receiveCompletion: { _ in }) { [weak self] weatherModel in
+				guard let self, let weather = weatherModel.weather.first else { return }
 
-				self.condition = _weather.condition
+				WeatherService.shared.condition = weather.condition
 
-				let icons = WeatherService.shared.icons
-				guard let icon = icons[_weather.icon] else { return }
-
-				let temperature = weather.main.temp - 273.15
+				let temperature = weatherModel.main.temp - 273.15
 				let celsiusTemperature = WeatherViewViewModel.numberFormatter.string(from: temperature as NSNumber) ?? "0º"
 
-				let sunriseDate = Date(timeIntervalSince1970: weather.sys.sunrise)
-				let sunsetDate = Date(timeIntervalSince1970: weather.sys.sunset)
+				let sunriseDate = Date(timeIntervalSince1970: weatherModel.sys.sunrise)
+				let sunsetDate = Date(timeIntervalSince1970: weatherModel.sys.sunset)
 
 				self.sunrise = WeatherViewViewModel.dateFormatter.string(from: sunriseDate)
 				self.sunset = WeatherViewViewModel.dateFormatter.string(from: sunsetDate)
 
-				self.weatherText = "\(icon) \(weather.name) | \(celsiusTemperature)º"
+				guard let icon = WeatherService.shared.icons[weather.icon] else {
+					self.weatherText = "\(WeatherService.shared.condition.capitalized) \(weatherModel.name) | \(celsiusTemperature)º"
+					return
+				}
+
+				self.weatherText = "\(icon) \(weatherModel.name) | \(celsiusTemperature)º"
 			}
 			.store(in: &subscriptions)
+
+		lastRefreshDate = Date()
+	}
+
+	private func shouldRefresh() -> Bool {
+		return -lastRefreshDate.timeIntervalSinceNow > 300
 	}
 
 }

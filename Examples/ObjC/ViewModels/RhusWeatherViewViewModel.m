@@ -3,6 +3,7 @@
 
 @implementation RhusWeatherViewViewModel {
 
+	NSDate *_lastRefreshDate;
 	NSDateFormatter *_dateFormatter;
 	NSString *_sunriseText;
 	NSString *_sunsetText;
@@ -20,12 +21,16 @@
 		_dateFormatter.dateFormat = @"HH:mm";
 	}
 
+	_lastRefreshDate = [NSDate distantPast];
+
 	return self;
 
 }
 
 
 - (void)updateWeather:(void (^)(NSString *, NSString *, NSString *))completion {
+
+	if(![self _shouldRefresh]) return;
 
 	[[CHWeatherService sharedInstance] fetchWeatherWithCompletion:^(CHWeatherModel *weatherModel) {
 
@@ -35,11 +40,21 @@
 		NSDictionary *icons = [[CHWeatherService sharedInstance] icons];
 
 		self.weatherText = [NSString stringWithFormat: @"%@ %@ | %.fº", icons[weatherModel.weather[0].icon], name, celsiusTemperature];
-		_sunriseText = [_dateFormatter stringFromDate: [NSDate dateWithTimeIntervalSince1970: weatherModel.sys.sunrise]];
-		_sunsetText = [_dateFormatter stringFromDate: [NSDate dateWithTimeIntervalSince1970: weatherModel.sys.sunset]];
+		_sunriseText = [_dateFormatter stringFromDate:[NSDate dateWithTimeIntervalSince1970: weatherModel.sys.sunrise]];
+		_sunsetText = [_dateFormatter stringFromDate:[NSDate dateWithTimeIntervalSince1970: weatherModel.sys.sunset]];
 
 		completion(self.weatherText, _sunriseText, _sunsetText);
 	}];
+
+	_lastRefreshDate = [NSDate new];
+
+}
+
+// ! Private
+
+- (BOOL)_shouldRefresh {
+
+	return -[_lastRefreshDate timeIntervalSinceNow] > 300;
 
 }
 
