@@ -28,29 +28,29 @@ final class WeatherViewViewModel: ObservableObject {
 		guard shouldRefresh() else { return }
 
 		try? WeatherService.shared.fetchWeather()
-			.receive(on: DispatchQueue.main)
-			.sink(receiveCompletion: { _ in }) { [weak self] weatherModel in
-				guard let self, let weather = weatherModel.weather.first else { return }
+				.receive(on: DispatchQueue.main)
+				.sink(receiveCompletion: { _ in }) { [weak self] weatherModel in
+					guard let self, let weather = weatherModel.weather.first else { return }
 
-				WeatherService.shared.condition = weather.condition
+					WeatherService.shared.condition = weather.condition
 
-				let temperature = weatherModel.main.temp - 273.15
-				let celsiusTemperature = WeatherViewViewModel.numberFormatter.string(from: temperature as NSNumber) ?? "0º"
+					let temperature = weatherModel.main.temp - 273.15
+					let celsiusTemperature = WeatherViewViewModel.numberFormatter.string(from: temperature as NSNumber) ?? "0º"
 
-				let sunriseDate = Date(timeIntervalSince1970: weatherModel.sys.sunrise)
-				let sunsetDate = Date(timeIntervalSince1970: weatherModel.sys.sunset)
+					let sunriseDate = Date(timeIntervalSince1970: weatherModel.sys.sunrise)
+					let sunsetDate = Date(timeIntervalSince1970: weatherModel.sys.sunset)
 
-				self.sunriseText = WeatherViewViewModel.dateFormatter.string(from: sunriseDate)
-				self.sunsetText = WeatherViewViewModel.dateFormatter.string(from: sunsetDate)
+					self.sunriseText = WeatherViewViewModel.dateFormatter.string(from: sunriseDate)
+					self.sunsetText = WeatherViewViewModel.dateFormatter.string(from: sunsetDate)
 
-				guard let icon = WeatherService.shared.icons[weather.icon] else {
-					self.weatherText = "\(WeatherService.shared.condition.capitalized) | \(weatherModel.name) | \(celsiusTemperature)º"
-					return
+					guard let icon = WeatherService.shared.icons[weather.icon] else {
+						self.weatherText = "\(WeatherService.shared.condition.capitalized) | \(weatherModel.name) | \(celsiusTemperature)º"
+						return
+					}
+
+					self.weatherText = "\(icon) \(weatherModel.name) | \(celsiusTemperature)º"
 				}
-
-				self.weatherText = "\(icon) \(weatherModel.name) | \(celsiusTemperature)º"
-			}
-			.store(in: &subscriptions)
+				.store(in: &subscriptions)
 
 		lastRefreshDate = Date()
 	}
