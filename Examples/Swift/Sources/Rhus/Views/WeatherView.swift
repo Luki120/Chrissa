@@ -1,3 +1,4 @@
+import Combine
 import UIKit
 
 
@@ -23,6 +24,8 @@ final class WeatherView: UIView {
 		return stackView
 	}()
 
+	private var subscriptions = Set<AnyCancellable>()
+
 	private var sunriseImageView, sunsetImageView: UIImageView!
 	private var sunriseLabel, sunsetLabel: UILabel!
 
@@ -34,7 +37,32 @@ final class WeatherView: UIView {
 
 	override init(frame: CGRect) {
 		super.init(frame: frame)
+		setupUI()
+		setupSubscriptions()
+	}
 
+	override func layoutSubviews() {
+		super.layoutSubviews()
+		layoutUI()
+	}
+
+	// ! Private
+
+	private func setupSubscriptions() {
+		weatherViewModel.$weatherText
+			.sink { [weak self] in self?.weatherLabel.text = $0 }
+			.store(in: &subscriptions)
+
+		weatherViewModel.$sunriseText
+			.sink { [weak self] in self?.sunriseLabel.text = $0 }
+			.store(in: &subscriptions)
+
+		weatherViewModel.$sunsetText
+			.sink { [weak self] in self?.sunsetLabel.text = $0 }
+			.store(in: &subscriptions)
+	}
+
+	private func setupUI() {
 		sunriseImageView = createImageView(withImage: UIImage(systemName: "sunrise.fill"))
 		sunsetImageView = createImageView(withImage: UIImage(systemName: "sunset.fill"))
 
@@ -46,9 +74,7 @@ final class WeatherView: UIView {
 		}
 	}
 
-	override func layoutSubviews() {
-		super.layoutSubviews()
-
+	private func layoutUI() {
 		NSLayoutConstraint.activate([
 			weatherLabel.topAnchor.constraint(equalTo: topAnchor),
 			weatherLabel.bottomAnchor.constraint(equalTo: bottomAnchor),
@@ -82,22 +108,14 @@ final class WeatherView: UIView {
 		return label
 	}
 
+}
+
+extension WeatherView {
+
 	// ! Public
 
 	func updateWeather() {
-		DispatchQueue.main.asyncAfter(deadline: .now() + 2) {
-			self.weatherViewModel.updateWeather()
-			self.weatherLabel.text = self.weatherViewModel.weatherText
-			self.sunriseLabel.text = self.weatherViewModel.sunrise
-			self.sunsetLabel.text = self.weatherViewModel.sunset
-		}
-	}
-
-	func updateLabel() {
-		DispatchQueue.main.async {
-			self.weatherLabel.text = ""
-			self.weatherLabel.text = self.weatherViewModel.weatherText
-		}
+		self.weatherViewModel.updateWeather()
 	}
 
 }

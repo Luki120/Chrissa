@@ -3,39 +3,31 @@ import RhusC
 import UIKit
 
 
-private var lsDateVC: SBFLockScreenDateVCHook!
+private var weatherView: WeatherView!
 
 class SBFLockScreenDateVCHook: ClassHook<UIViewController> {
 
 	static let targetName = "SBFLockScreenDateViewController"
 
-	@Property(.nonatomic) private(set) var weatherView = WeatherView()
+	@Property(.nonatomic, .retain) private var _weatherView = WeatherView()
 
 	func viewDidLoad() {
 		orig.viewDidLoad()
 
-		lsDateVC = self
+		weatherView = _weatherView
 
-		weatherView.translatesAutoresizingMaskIntoConstraints = false
-		target.view.addSubview(weatherView)
+		_weatherView.translatesAutoresizingMaskIntoConstraints = false
+		target.view.addSubview(_weatherView)
 
 		NSLayoutConstraint.activate([
-			weatherView.topAnchor.constraint(equalTo: target.view.bottomAnchor, constant: 10),
-			weatherView.leadingAnchor.constraint(equalTo: target.view.leadingAnchor),
-			weatherView.trailingAnchor.constraint(equalTo: target.view.trailingAnchor)
+			_weatherView.topAnchor.constraint(equalTo: target.view.bottomAnchor, constant: 10),
+			_weatherView.centerXAnchor.constraint(equalTo: target.view.centerXAnchor)
 		])
 	}
 
-}
-
-class CSCoverSheetVCHook: ClassHook<UIViewController> {
-
-	static let targetName = "CSCoverSheetViewController"
-
 	func viewWillAppear(_ animated: Bool) {
 		orig.viewWillAppear(animated)
-		lsDateVC.weatherView.updateWeather()
-		lsDateVC.weatherView.updateLabel()
+		weatherView.updateWeather()
 	}
 
 }
@@ -58,10 +50,8 @@ class SBBacklightControllerHook: ClassHook<NSObject> {
 	func turnOnScreenFullyWithBacklightSource(_ source: Int) {
 		orig.turnOnScreenFullyWithBacklightSource(source)
 
-		guard let SBLockScreenManager = NSClassFromString("SBLockScreenManager") else { return }
-
 		if !SBLockScreenManager.sharedInstance().isLockScreenVisible() { return }
-		lsDateVC.weatherView.updateWeather()
+		weatherView.updateWeather()
 	}
 
 }

@@ -1,13 +1,12 @@
 import Chrissa
 import Combine
-import Foundation
 
 
 final class WeatherViewViewModel: ObservableObject {
 
 	@Published private(set) var weatherText = ""
-	@Published private(set) var sunrise: String?
-	@Published private(set) var sunset: String?
+	@Published private(set) var sunriseText = ""
+	@Published private(set) var sunsetText = ""
 
 	private var lastRefreshDate: Date = .distantPast
 	private var subscriptions = Set<AnyCancellable>()
@@ -27,13 +26,12 @@ final class WeatherViewViewModel: ObservableObject {
 
 	init() {
 		updateLocation()
-		updateWeather()
 	}
 
 	func updateLocation() {
 		ScreenListener.sharedInstance.$isScreenOff
 			.sink { state in
-				if state == false { WeatherService.shared.updateLocation(false) }
+				if !state { WeatherService.shared.updateLocation(false) }
 			}
 			.store(in: &subscriptions)
 	}
@@ -54,11 +52,11 @@ final class WeatherViewViewModel: ObservableObject {
 				let sunriseDate = Date(timeIntervalSince1970: weatherModel.sys.sunrise)
 				let sunsetDate = Date(timeIntervalSince1970: weatherModel.sys.sunset)
 
-				self.sunrise = WeatherViewViewModel.dateFormatter.string(from: sunriseDate)
-				self.sunset = WeatherViewViewModel.dateFormatter.string(from: sunsetDate)
+				self.sunriseText = WeatherViewViewModel.dateFormatter.string(from: sunriseDate)
+				self.sunsetText = WeatherViewViewModel.dateFormatter.string(from: sunsetDate)
 
 				guard let icon = WeatherService.shared.icons[weather.icon] else {
-					self.weatherText = "\(WeatherService.shared.condition.capitalized) \(weatherModel.name) | \(celsiusTemperature)º"
+					self.weatherText = "\(WeatherService.shared.condition.capitalized) | \(weatherModel.name) | \(celsiusTemperature)º"
 					return
 				}
 
