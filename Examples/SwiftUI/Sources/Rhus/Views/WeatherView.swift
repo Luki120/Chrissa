@@ -7,7 +7,7 @@ struct WeatherView: View {
 	private(set) var viewModel: WeatherViewViewModel
 
 	var body: some View {
-		VStack(spacing: 2) {
+		VStack(spacing: 5) {
 			Text(viewModel.weatherText)
 				.frame(maxWidth: .infinity, alignment: .center)
 				.foregroundColor(.primary)

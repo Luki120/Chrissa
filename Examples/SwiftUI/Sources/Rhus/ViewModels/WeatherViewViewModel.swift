@@ -1,6 +1,5 @@
 import Chrissa
 import Combine
-import Foundation
 
 
 final class WeatherViewViewModel: ObservableObject {
@@ -24,19 +23,6 @@ final class WeatherViewViewModel: ObservableObject {
 		formatter.maximumFractionDigits = 0
 		return formatter
 	}()
-
-	init() {
-		updateLocation()
-		updateWeather()
-	}
-
-	func updateLocation() {
-		ScreenListener.sharedInstance.$isScreenOff
-			.sink { state in
-				if state == false { WeatherService.shared.updateLocation(false) }
-			}
-			.store(in: &subscriptions)
-	}
 
 	func updateWeather() {
 		guard shouldRefresh() else { return }
@@ -71,17 +57,6 @@ final class WeatherViewViewModel: ObservableObject {
 
 	private func shouldRefresh() -> Bool {
 		return -lastRefreshDate.timeIntervalSinceNow > 300
-	}
-
-}
-
-final class ScreenListener: ObservableObject {
-
-	static let sharedInstance = ScreenListener()
-	@Published var isScreenOff = false {
-		didSet {
-			NotificationCenter.default.post(name: .didRefreshWeatherDataNotification, object: nil)
-		}
 	}
 
 }

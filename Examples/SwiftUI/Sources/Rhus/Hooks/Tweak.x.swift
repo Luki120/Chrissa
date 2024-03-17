@@ -5,20 +5,18 @@ import protocol SwiftUI.View
 import class SwiftUI.UIHostingController
 
 
-private var lsDateVC: SBFLockScreenDateVCHook!
+private var weatherViewViewModel: WeatherViewViewModel!
 
 class SBFLockScreenDateVCHook: ClassHook<UIViewController> {
 
 	static let targetName = "SBFLockScreenDateViewController"
 
-	@Property(.nonatomic) private(set) var weatherViewViewModel = WeatherViewViewModel()
+	@Property(.nonatomic, .retain) private var _weatherViewViewModel = WeatherViewViewModel()
 
 	func viewDidLoad() {
 		orig.viewDidLoad()
 
-		lsDateVC = self
-
-		let vc = HostingController(rootView: WeatherView(viewModel: weatherViewViewModel))
+		let vc = HostingController(rootView: WeatherView(viewModel: _weatherViewViewModel))
 		vc.view.backgroundColor = .clear
 		vc.view.translatesAutoresizingMaskIntoConstraints = false
 
@@ -30,6 +28,8 @@ class SBFLockScreenDateVCHook: ClassHook<UIViewController> {
 			vc.view.leadingAnchor.constraint(equalTo: target.view.leadingAnchor),
 			vc.view.trailingAnchor.constraint(equalTo: target.view.trailingAnchor)
 		])
+
+		weatherViewViewModel = _weatherViewViewModel
 	}
 
 }
@@ -40,18 +40,7 @@ class CSCoverSheetVCHook: ClassHook<UIViewController> {
 
 	func viewWillAppear(_ animated: Bool) {
 		orig.viewWillAppear(animated)
-		lsDateVC.weatherViewViewModel.updateWeather()
-	}
-
-}
-
-class SBLockScreenPluginManagerHook: ClassHook<NSObject> {
-
-	static let targetName = "SBLockScreenPluginManager"
-
-	func setEnabled(_ enabled: Bool) {
-		orig.setEnabled(enabled)
-		ScreenListener.sharedInstance.isScreenOff = !enabled
+		weatherViewViewModel.updateWeather()
 	}
 
 }
@@ -62,8 +51,6 @@ class SBBacklightControllerHook: ClassHook<NSObject> {
 
 	func turnOnScreenFullyWithBacklightSource(_ source: Int) {
 		orig.turnOnScreenFullyWithBacklightSource(source)
-
-		guard let SBLockScreenManager = NSClassFromString("SBLockScreenManager") else { return }
 
 		if !SBLockScreenManager.sharedInstance().isLockScreenVisible() { return }
 		NotificationCenter.default.post(name: .didRefreshWeatherDataNotification, object: nil)
