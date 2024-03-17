@@ -24,18 +24,6 @@ final class WeatherViewViewModel: ObservableObject {
 		return formatter
 	}()
 
-	init() {
-		updateLocation()
-	}
-
-	func updateLocation() {
-		ScreenListener.sharedInstance.$isScreenOff
-			.sink { state in
-				if !state { WeatherService.shared.updateLocation(false) }
-			}
-			.store(in: &subscriptions)
-	}
-
 	func updateWeather() {
 		guard shouldRefresh() else { return }
 
@@ -70,13 +58,6 @@ final class WeatherViewViewModel: ObservableObject {
 	private func shouldRefresh() -> Bool {
 		return -lastRefreshDate.timeIntervalSinceNow > 300
 	}
-
-}
-
-final class ScreenListener: ObservableObject {
-
-	static let sharedInstance = ScreenListener()
-	@Published var isScreenOff = false
 
 }
 

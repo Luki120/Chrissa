@@ -8,18 +8,8 @@ internal final class LocationService: ObservableObject {
 	@Published private(set) internal var latitude: CLLocationDegrees = 0
 	@Published private(set) internal var longitude: CLLocationDegrees = 0
 
-	/// Designated initializer
 	internal init() {
 		forceEnableLocation()
-	}
-
-	internal func startUpdatingLocation(_ startUpdating: Bool) {
-		if startUpdating {
-			manager?.startUpdatingLocation()
-		}
-		else {
-			manager?.stopUpdatingLocation()
-		}
 	}
 
 	internal func forceEnableLocation() {

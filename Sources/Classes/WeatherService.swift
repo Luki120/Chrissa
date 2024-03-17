@@ -42,7 +42,7 @@ public final class WeatherService: NSObject, ObservableObject {
 	public private(set) var icons = [
 		"01d": "☀️",
 		"01n": "🌙",
-		"02d": "⛅",
+		"02d": "🌤️",
 		"02n": "☁️",
 		"03d": "☁️",
 		"03n": "☁️",
@@ -101,14 +101,6 @@ extension WeatherService {
 				completion(weather)
 			}
 			.store(in: &subscriptions)
-	}
-
-	/// Function to start or stop updating location based on a given condition
-	/// - Parameters:
-	///		- update: Boolean that represents the condition for updating the location
-	@objc
-	public func updateLocation(_ update: Bool) {
-		locationService.startUpdatingLocation(update)
 	}
 
 }

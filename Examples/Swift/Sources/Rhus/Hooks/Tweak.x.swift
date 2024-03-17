@@ -32,17 +32,6 @@ class SBFLockScreenDateVCHook: ClassHook<UIViewController> {
 
 }
 
-class SBLockScreenPluginManagerHook: ClassHook<NSObject> {
-
-	static let targetName = "SBLockScreenPluginManager"
-
-	func setEnabled(_ enabled: Bool) {
-		orig.setEnabled(enabled)
-		ScreenListener.sharedInstance.isScreenOff = !enabled
-	}
-
-}
-
 class SBBacklightControllerHook: ClassHook<NSObject> {
 
 	static let targetName = "SBBacklightController"
