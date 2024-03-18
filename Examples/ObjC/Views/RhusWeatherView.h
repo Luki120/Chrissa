@@ -6,6 +6,5 @@
 
 
 @interface RhusWeatherView (Public)
-- (void)updateLabel;
 - (void)updateWeather;
 @end

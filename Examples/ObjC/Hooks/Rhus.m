@@ -23,11 +23,8 @@ static void overrideVDL(SBFLockScreenDateViewController *self, SEL _cmd) {
 	if(!_weatherView) _weatherView = [RhusWeatherView new];
 	[self.view addSubview: _weatherView];
 
-	[NSLayoutConstraint activateConstraints:@[
-		[_weatherView.topAnchor constraintEqualToAnchor: self.view.bottomAnchor constant: 10],
-		[_weatherView.leadingAnchor constraintEqualToAnchor: self.view.leadingAnchor],
-		[_weatherView.trailingAnchor constraintEqualToAnchor: self.view.trailingAnchor]
-	]];
+	[_weatherView.topAnchor constraintEqualToAnchor: self.view.bottomAnchor constant: 10].active = YES;
+	[_weatherView.centerXAnchor constraintEqualToAnchor: self.view.centerXAnchor].active = YES;
 
 }
 
@@ -35,9 +32,7 @@ static void (*origVWA)(SBFLockScreenDateViewController *, SEL, BOOL);
 static void overrideVWA(SBFLockScreenDateViewController *self, SEL _cmd, BOOL animated) {
 
 	origVWA(self, _cmd, animated);
-
 	[_weatherView updateWeather];
-	[_weatherView updateLabel];
 
 }
 
@@ -46,7 +41,7 @@ static void overrideTOSFWBS(SBBacklightController *self, SEL _cmd, NSInteger sou
 
 	origTOSFWBS(self, _cmd, source);
 
-	if(![[NSClassFromString(@"SBLockScreenManager") sharedInstance] isLockScreenVisible]) return;
+	if(![[SBLockScreenManager sharedInstance] isLockScreenVisible]) return;
 	[_weatherView updateWeather];
 
 }

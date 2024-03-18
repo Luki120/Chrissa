@@ -75,7 +75,7 @@
 		[_weatherLabel.trailingAnchor constraintEqualToAnchor: self.trailingAnchor],
 
 		[_sunriseSunsetStackView.topAnchor constraintEqualToAnchor: _weatherLabel.bottomAnchor constant: 5],
-		[_sunriseSunsetStackView.centerXAnchor constraintEqualToAnchor: _weatherLabel.centerXAnchor],
+		[_sunriseSunsetStackView.centerXAnchor constraintEqualToAnchor: _weatherLabel.centerXAnchor]
 	]];
 
 	for(UIImageView *imageView in @[_sunriseImageView, _sunsetImageView]) {
@@ -111,19 +111,6 @@
 
 
 @implementation RhusWeatherView (Public)
-
-- (void)updateLabel {
-
-	_weatherLabel.text = @"";
-
-	[UIView transitionWithView:_weatherLabel duration:0.8 options:UIViewAnimationOptionTransitionCrossDissolve animations:^{
-
-		_weatherLabel.text = _viewModel.weatherText;
-
-	} completion:nil];
-
-}
-
 
 - (void)updateWeather {
 

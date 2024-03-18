@@ -7,6 +7,7 @@
 	NSDateFormatter *_dateFormatter;
 	NSString *_sunriseText;
 	NSString *_sunsetText;
+	NSString *_weatherText;
 
 }
 
@@ -39,11 +40,11 @@
 
 		NSDictionary *icons = [[CHWeatherService sharedInstance] icons];
 
-		self.weatherText = [NSString stringWithFormat: @"%@ %@ | %.fº", icons[weatherModel.weather[0].icon], name, celsiusTemperature];
 		_sunriseText = [_dateFormatter stringFromDate:[NSDate dateWithTimeIntervalSince1970: weatherModel.sys.sunrise]];
 		_sunsetText = [_dateFormatter stringFromDate:[NSDate dateWithTimeIntervalSince1970: weatherModel.sys.sunset]];
+		_weatherText = [NSString stringWithFormat: @"%@ %@ | %.fº", icons[weatherModel.weather[0].icon], name, celsiusTemperature];
 
-		completion(self.weatherText, _sunriseText, _sunsetText);
+		completion(_weatherText, _sunriseText, _sunsetText);
 	}];
 
 	_lastRefreshDate = [NSDate new];
