@@ -19,10 +19,8 @@ class SBFLockScreenDateVCHook: ClassHook<UIViewController> {
 		_weatherView.translatesAutoresizingMaskIntoConstraints = false
 		target.view.addSubview(_weatherView)
 
-		NSLayoutConstraint.activate([
-			_weatherView.topAnchor.constraint(equalTo: target.view.bottomAnchor, constant: 10),
-			_weatherView.centerXAnchor.constraint(equalTo: target.view.centerXAnchor)
-		])
+		_weatherView.topAnchor.constraint(equalTo: target.view.bottomAnchor, constant: 10).isActive = true
+		_weatherView.centerXAnchor.constraint(equalTo: target.view.centerXAnchor).isActive = true
 	}
 
 	func viewWillAppear(_ animated: Bool) {

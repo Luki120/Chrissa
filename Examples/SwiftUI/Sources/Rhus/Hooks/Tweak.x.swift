@@ -23,11 +23,9 @@ class SBFLockScreenDateVCHook: ClassHook<UIViewController> {
 		target.addChild(vc)
 		target.view.addSubview(vc.view)
 
-		NSLayoutConstraint.activate([
-			vc.view.topAnchor.constraint(equalTo: target.view.bottomAnchor, constant: 10),
-			vc.view.leadingAnchor.constraint(equalTo: target.view.leadingAnchor),
-			vc.view.trailingAnchor.constraint(equalTo: target.view.trailingAnchor)
-		])
+		vc.view.topAnchor.constraint(equalTo: target.view.bottomAnchor, constant: 10).isActive = true
+		vc.view.leadingAnchor.constraint(equalTo: target.view.leadingAnchor).isActive = true
+		vc.view.trailingAnchor.constraint(equalTo: target.view.trailingAnchor).isActive = true
 
 		weatherViewViewModel = _weatherViewViewModel
 	}
