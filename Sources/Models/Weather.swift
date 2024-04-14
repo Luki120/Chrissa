@@ -1,109 +1,146 @@
 import Foundation
 
+/// Weather model struct
+public struct WeatherModel: Codable {
+	public let currentWeather: CurrentWeather
+	public let dailyWeather: DailyWeather
 
-public struct WeatherModel: Codable, _ObjectiveCBridgeable {
-	public let name: String
-	public let main: Main
-	public let weather: [Weather]
-	public let sys: Sys
+	enum CodingKeys: String, CodingKey {
+		case currentWeather = "current_weather"
+		case dailyWeather = "daily"
+	}
+}
 
+/// Current weather model struct
+public struct CurrentWeather: Codable {
+	public let temperature: Double
+	public let weatherCode: Int
+	public let isDay: Int
+
+	public enum CodingKeys: String, CodingKey {
+		case temperature
+		case weatherCode = "weathercode"
+		case isDay = "is_day"
+	}
+
+	public func unicode(for condition: Condition) -> String {
+		return Chrissa.unicode(for: condition, isDay: isDay)
+	}
+}
+
+/// Daily weather model struct
+public struct DailyWeather: Codable {
+	public let low: Double
+	public let high: Double
+	public let sunrise: String
+	public let sunset: String
+
+	public enum CodingKeys: String, CodingKey {
+		case low = "temperature_2m_min"
+		case high = "temperature_2m_max"
+		case sunrise
+		case sunset
+	}
+
+	public init(low: Double, high: Double, sunrise: String, sunset: String) {
+		self.low = low
+		self.high = high
+		self.sunrise = sunrise
+		self.sunset = sunset
+	}
+
+	public init(from decoder: Decoder) throws {
+		let container: KeyedDecodingContainer<DailyWeather.CodingKeys> = try decoder.container(keyedBy: DailyWeather.CodingKeys.self)
+
+		guard let low = try container.decode([Double].self, forKey: DailyWeather.CodingKeys.low).first,
+			let high = try container.decode([Double].self, forKey: DailyWeather.CodingKeys.high).first,
+			let sunrise = try container.decode([String].self, forKey: DailyWeather.CodingKeys.sunrise).first,
+			let sunset = try container.decode([String].self, forKey: DailyWeather.CodingKeys.sunset).first else {
+				throw URLError(.cannotDecodeRawData)
+			}
+
+		self.low = low
+		self.high = high
+		self.sunrise = sunrise
+		self.sunset = sunset
+	}
+}
+
+// ! _ObjectiveCBridgeable
+
+// This is just great, by conforming to this secret shady private protocol Swift gets a struct & ObjC a class :tm:
+
+extension WeatherModel: _ObjectiveCBridgeable {
 	public typealias _ObjectiveCType = CHWeatherModel
 
 	public func _bridgeToObjectiveC() -> CHWeatherModel {
-		return CHWeatherModel(name: name, main: main, weather: weather, sys: sys)
+		return CHWeatherModel(currentWeather: currentWeather, dailyWeather: dailyWeather)
 	}
 
 	public static func _forceBridgeFromObjectiveC(_ source: CHWeatherModel, result: inout WeatherModel?) {
-		result = WeatherModel(name: source.name, main: source.main, weather: source.weather, sys: source.sys)
+		result = WeatherModel(currentWeather: source.currentWeather, dailyWeather: source.dailyWeather)
 	}
 
 	public static func _unconditionallyBridgeFromObjectiveC(_ source: CHWeatherModel?) -> WeatherModel {
 		return WeatherModel(
-			name: source?.name ?? "",
-			main: source?.main ?? Main(temp: 0),
-			weather: source?.weather ?? [],
-			sys: source?.sys ?? Sys(sunrise: 0, sunset: 0)
+			currentWeather: source?.currentWeather ?? CurrentWeather(temperature: 0, weatherCode: 0, isDay: 0),
+			dailyWeather: source?.dailyWeather ?? DailyWeather(low: 0, high: 0, sunrise: "", sunset: "")
 		)
 	}
 
 	public static func _conditionallyBridgeFromObjectiveC(_ source: CHWeatherModel, result: inout WeatherModel?) -> Bool {
-		result = WeatherModel(name: source.name, main: source.main, weather: source.weather, sys: source.sys)
+		result = WeatherModel(currentWeather: source.currentWeather, dailyWeather: source.dailyWeather)
 		return true
 	}
 }
 
-public struct Main: Codable, _ObjectiveCBridgeable {
-	public let temp: Float
+extension CurrentWeather: _ObjectiveCBridgeable {
+	public typealias _ObjectiveCType = CHCurrentWeather
 
-	public typealias _ObjectiveCType = CHMain
-
-	public func _bridgeToObjectiveC() -> CHMain {
-		return CHMain(temp: temp)
+	public func _bridgeToObjectiveC() -> CHCurrentWeather {
+		return CHCurrentWeather(temperature: temperature, weatherCode: weatherCode, isDay: isDay)
 	}
 
-	public static func _forceBridgeFromObjectiveC(_ source: CHMain, result: inout Main?) {
-		result = Main(temp: source.temp)
+	public static func _forceBridgeFromObjectiveC(_ source: CHCurrentWeather, result: inout CurrentWeather?) {
+		result = CurrentWeather(temperature: source.temperature, weatherCode: source.weatherCode, isDay: source.isDay)
 	}
 
-	public static func _unconditionallyBridgeFromObjectiveC(_ source: CHMain?) -> Main {
-		return Main(temp: source?.temp ?? 0)
+	public static func _unconditionallyBridgeFromObjectiveC(_ source: CHCurrentWeather?) -> CurrentWeather {
+		return CurrentWeather(
+			temperature: source?.temperature ?? 0,
+			weatherCode: source?.weatherCode ?? 0,
+			isDay: source?.isDay ?? 0
+		)
 	}
 
-	public static func _conditionallyBridgeFromObjectiveC(_ source: CHMain, result: inout Main?) -> Bool {
-		result = Main(temp: source.temp)
+	public static func _conditionallyBridgeFromObjectiveC(_ source: CHCurrentWeather, result: inout CurrentWeather?) -> Bool {
+		result = CurrentWeather(temperature: source.temperature, weatherCode: source.weatherCode, isDay: source.isDay)
 		return true
 	}
 }
 
-public struct Weather: Codable, _ObjectiveCBridgeable {
-	public let condition: String
-	public let icon: String
+extension DailyWeather: _ObjectiveCBridgeable {
+	public typealias _ObjectiveCType = CHDailyWeather
 
-	public enum CodingKeys: String, CodingKey {
-		case condition = "description"
-		case icon
+	public func _bridgeToObjectiveC() -> CHDailyWeather {
+		return CHDailyWeather(low: low, high: high, sunrise: sunrise, sunset: sunset)
 	}
 
-	public typealias _ObjectiveCType = CHWeather
-
-	public func _bridgeToObjectiveC() -> CHWeather {
-		return CHWeather(condition: condition, icon: icon)
+	public static func _forceBridgeFromObjectiveC(_ source: CHDailyWeather, result: inout DailyWeather?) {
+		result = DailyWeather(low: source.low, high: source.high, sunrise: source.sunrise, sunset: source.sunset)
 	}
 
-	public static func _forceBridgeFromObjectiveC(_ source: CHWeather, result: inout Weather?) {
-		result = Weather(condition: source.condition, icon: source.icon)
+	public static func _unconditionallyBridgeFromObjectiveC(_ source: CHDailyWeather?) -> DailyWeather {
+		return DailyWeather(
+			low: source?.low ?? 0,
+			high: source?.high ?? 0,
+			sunrise: source?.sunrise ?? "",
+			sunset: source?.sunset ?? ""
+		)
 	}
 
-	public static func _unconditionallyBridgeFromObjectiveC(_ source: CHWeather?) -> Weather {
-		return Weather(condition: source?.condition ?? "", icon: source?.icon ?? "")
-	}
-
-	public static func _conditionallyBridgeFromObjectiveC(_ source: CHWeather, result: inout Weather?) -> Bool {
-		result = Weather(condition: source.condition, icon: source.icon)
-		return true
-	}
-}
-
-public struct Sys: Codable, _ObjectiveCBridgeable {
-	public let sunrise: TimeInterval
-	public let sunset: TimeInterval
-
-	public typealias _ObjectiveCType = CHSys
-
-	public func _bridgeToObjectiveC() -> CHSys {
-		return CHSys(sunrise: sunrise, sunset: sunset)
-	}
-
-	public static func _forceBridgeFromObjectiveC(_ source: CHSys, result: inout Sys?) {
-		result = Sys(sunrise: source.sunrise, sunset: source.sunset)
-	}
-
-	public static func _unconditionallyBridgeFromObjectiveC(_ source: CHSys?) -> Sys {
-		return Sys(sunrise: source?.sunrise ?? 0, sunset: source?.sunset ?? 0)
-	}
-
-	public static func _conditionallyBridgeFromObjectiveC(_ source: CHSys, result: inout Sys?) -> Bool {
-		result = Sys(sunrise: source.sunrise, sunset: source.sunset)
+	public static func _conditionallyBridgeFromObjectiveC(_ source: CHDailyWeather, result: inout DailyWeather?) -> Bool {
+		result = DailyWeather(low: source.low, high: source.high, sunrise: source.sunrise, sunset: source.sunset)
 		return true
 	}
 }
@@ -111,57 +148,46 @@ public struct Sys: Codable, _ObjectiveCBridgeable {
 @objcMembers
 @objc(CHWeatherModel)
 public class CHWeatherModel: NSObject {
-	public let name: String
-	public let main: Main
-	public let weather: [Weather]
-	public let sys: Sys
+	public let currentWeather: CurrentWeather
+	public let dailyWeather: DailyWeather
 
-	public init(name: String, main: Main, weather: [Weather], sys: Sys) {
-		self.name = name
-		self.main = main
-		self.weather = weather
-		self.sys = sys
-		super.init()
-	}
-
-}
-
-@objcMembers
-@objc(CHMain)
-public class CHMain: NSObject {
-	public let temp: Float
-
-	public init(temp: Float) {
-		self.temp = temp
+	public init(currentWeather: CurrentWeather, dailyWeather: DailyWeather) {
+		self.currentWeather = currentWeather
+		self.dailyWeather = dailyWeather
 		super.init()
 	}
 }
 
 @objcMembers
-@objc(CHWeather)
-public class CHWeather: NSObject {
-	public let condition: String
-	public let icon: String
+@objc(CHCurrentWeather)
+public class CHCurrentWeather: NSObject {
+	public let temperature: Double
+	public let weatherCode: Int
+	public let isDay: Int
 
-	public init(condition: String, icon: String) {
-		self.condition = condition
-		self.icon = icon
+	public init(temperature: Double, weatherCode: Int, isDay: Int) {
+		self.temperature = temperature
+		self.weatherCode = weatherCode
+		self.isDay = isDay
 		super.init()
 	}
 
-	public enum CodingKeys: String, CodingKey {
-		case condition = "description"
-		case icon
+	public func unicode(for condition: Condition) -> String {
+		return Chrissa.unicode(for: condition, isDay: isDay)
 	}
 }
 
 @objcMembers
-@objc(CHSys)
-public class CHSys: NSObject {
-	public let sunrise: TimeInterval
-	public let sunset: TimeInterval
+@objc(CHDailyWeather)
+public class CHDailyWeather: NSObject {
+	public let low: Double
+	public let high: Double
+	public let sunrise: String
+	public let sunset: String
 
-	public init(sunrise: TimeInterval, sunset: TimeInterval) {
+	public init(low: Double, high: Double, sunrise: String, sunset: String) {
+		self.low = low
+		self.high = high
 		self.sunrise = sunrise
 		self.sunset = sunset
 		super.init()

@@ -1,0 +1,51 @@
+import Foundation
+
+/// Enum that maps every weather code to a weather condition
+@objc
+public enum Condition: Int {
+	case clearSky = 0
+	case partlyCloudy = 2
+	case overcast = 3
+	case fog = 45
+	case rimeFog = 48
+	case lightDrizzle = 51
+	case moderateDrizzle = 53
+	case intenseDrizzle = 55
+	case lightFreezingDrizzle = 56
+	case intenseFreezingDrizzle = 57
+	case lightRain = 61
+	case moderateRain = 63
+	case heavyRain = 65
+	case lightFreezingRain = 66
+	case heavyFreezingRain = 67
+	case slightSnowFall = 71
+	case moderateSnowFall = 73
+	case heavySnowFall = 75
+	case snowGrains = 77
+	case slightRainShowers = 80
+	case moderateRainShowers = 81
+	case violentRainShowers = 82
+	case slightSnowShowers = 85
+	case heavySnowShowers = 86
+	case thunderstorm = 95
+}
+
+internal func unicode(for condition: Condition, isDay: Int) -> String {
+	switch condition {
+		case .clearSky: return isDay == 1 ? "☀️" : "🌙"
+		case .partlyCloudy: return "🌤️"
+		case .overcast: return "🌥️"
+		case .fog: return "🌫️"
+		case .rimeFog: return "🌫️"
+		case .lightDrizzle, .moderateDrizzle, .intenseDrizzle: return isDay == 1 ? "🌦️" : "🌧️"
+
+		case .lightFreezingDrizzle, .intenseFreezingDrizzle, .lightFreezingRain,
+			.heavyFreezingRain, .slightSnowShowers, .heavySnowShowers: return "🌨️"
+
+		case .lightRain, .moderateRain, .heavyRain, .slightRainShowers, .moderateRainShowers,
+			.violentRainShowers: return isDay == 1 ? "🌦️" : "🌧️"
+
+		case .slightSnowFall, .moderateSnowFall, .heavySnowFall, .snowGrains: return "❄️"
+		case .thunderstorm: return "⛈"
+	}
+}
