@@ -46,13 +46,12 @@ jobs:
       - name: Build
         run: |
           brew install make ldid
-          echo 'let _apiKey = ${{ secrets.API_KEY }}' > ${{ github.workspace }}/Sources/Utilities/_Constants.swift
           THEOS=theos gmake clean package TARGET="iphone:clang:16.5:14.0" THEOS_PACKAGE_SCHEME=rootless
 
-          export THEOS="$(pwd)/theos"
-          for PROJECT in Examples/ObjC/ Examples/Swift/ Examples/SwiftUI/ ; do
-            gmake -C "${PROJECT}" clean package TARGET="iphone:clang:16.5:14.0" FINALPACKAGE=1 THEOS_PACKAGE_DIR_NAME="../../packages" THEOS_PACKAGE_SCHEME=rootless
-          done
+#          export THEOS="$(pwd)/theos"
+#          for PROJECT in Examples/ObjC/ Examples/Swift/ Examples/SwiftUI/ ; do
+#            gmake -C "${PROJECT}" clean package TARGET="iphone:clang:16.5:14.0" FINALPACKAGE=1 THEOS_PACKAGE_DIR_NAME="../../packages" THEOS_PACKAGE_SCHEME=rootless
+#          done
 
       - name: Upload artifact
         uses: actions/upload-artifact@v3
