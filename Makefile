@@ -2,7 +2,9 @@ TARGET := iphone:clang:latest:14.0
 
 FRAMEWORK_NAME = Chrissa
 
-Chrissa_FILES = $(filter-out Examples/Swift/Package.swift Examples/SwiftUI/Package.swift, $(wildcard */**/**.swift)) Sources/Utilities/Chrissa.m
+rwildcard = $(foreach d,$(wildcard $(1:=/*)),$(call rwildcard,$d,$2) $(filter $(subst *,%,$2),$d))
+
+Chrissa_FILES = $(call rwildcard, Sources, *.m *.swift)
 Chrissa_CFLAGS = -fobjc-arc
 Chrissa_INSTALL_PATH = /Library/Frameworks
 Chrissa_PUBLIC_HEADERS = Sources/Headers/Chrissa.h Sources/Headers/CLLocationManager+Private.h
@@ -12,7 +14,7 @@ include $(THEOS)/makefiles/common.mk
 include $(THEOS_MAKE_PATH)/framework.mk
 
 before-stage::
-	@$(PRINT_FORMAT_YELLOW) "Copying Neccessary files for functionality"
+	@$(PRINT_FORMAT_YELLOW) "Copying neccessary files for functionality"
 	$(eval SOURCE_FILE := $(THEOS_OBJ_DIR)/arm64/generated/$(FRAMEWORK_NAME)-Swift.h)
 	$(eval FRAMEWORK_DIR := $(THEOS_OBJ_DIR)/$(FRAMEWORK_NAME).framework)
 	@mkdir -p $(THEOS)/lib/iphone/rootless/
