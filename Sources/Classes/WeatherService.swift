@@ -33,7 +33,8 @@ extension WeatherService {
 	/// Combine function to make API calls
 	/// - Parameters:
 	///		- expecting: The type that conforms to Codable
-	/// Returns: AnyPublisher of generic type T & Error
+	/// - Returns: AnyPublisher of generic type T & Error
+	/// - Throws: An error of type URLError
 	public func fetchWeather<T: Codable>(expecting type: T.Type = WeatherModel.self) throws -> AnyPublisher<T, Error> {
 		locationService.forceEnableLocation()
 		locationService.$locationName
@@ -42,7 +43,7 @@ extension WeatherService {
 			}
 			.store(in: &subscriptions)
 
-		let apiURL = "\(Constants.baseURL)latitude=\(locationService.latitude)&longitude=\(locationService.longitude)&daily=temperature_2m_max,temperature_2m_min,sunrise,sunset&current_weather=true&temperature_unit=celsius&forecast_days=1&timezone=auto"
+		let apiURL = "\(Constants.baseURL)latitude=\(locationService.latitude)&longitude=\(locationService.longitude)&current=temperature_2m,apparent_temperature,weather_code,is_day&daily=temperature_2m_max,temperature_2m_min,sunrise,sunset&forecast_days=1&timeformat=unixtime&timezone=auto"
 		guard let url = URL(string: apiURL) else { throw URLError(.badURL) }
 
 		return URLSession.shared.dataTaskPublisher(for: url)
@@ -61,19 +62,15 @@ extension WeatherService {
 	/// Function to make API calls
 	/// - Parameters:
 	///		- completion: Escaping closure that takes a WeatherModel object as argument & returns nothing
+	/// - Throws: An error of type URLError
 	@objc
-	public func fetchWeather(completion: @escaping (WeatherModel) -> Void) {
-		do {
-			try fetchWeather()
-					.receive(on: DispatchQueue.main)
-					.sink(receiveCompletion: { _ in }) { weather in
-						completion(weather)
-					}
-					.store(in: &subscriptions)
-		}
-		catch {
-			NSLog("CHRISSA: \(error)")
-		}
+	public func fetchWeather(completion: @escaping (WeatherModel) -> Void) throws {
+		try fetchWeather()
+				.receive(on: DispatchQueue.main)
+				.sink(receiveCompletion: { _ in }) { weather in
+					completion(weather)
+				}
+				.store(in: &subscriptions)
 	}
 
 }

@@ -28,24 +28,25 @@ public enum Condition: Int {
 	case slightSnowShowers = 85
 	case heavySnowShowers = 86
 	case thunderstorm = 95
-}
+	case thunderstormWithSlightHail = 96
+	case thunderstormWithHeavyHail = 99
 
-internal func unicode(for condition: Condition, isDay: Int) -> String {
-	switch condition {
-		case .clearSky: return isDay == 1 ? "☀️" : "🌙"
-		case .partlyCloudy: return "🌤️"
-		case .overcast: return "🌥️"
-		case .fog: return "🌫️"
-		case .rimeFog: return "🌫️"
-		case .lightDrizzle, .moderateDrizzle, .intenseDrizzle: return isDay == 1 ? "🌦️" : "🌧️"
+	public func unicode(isDay: Int) -> String {
+		switch self {
+			case .clearSky: return isDay == 1 ? "☀️" : "🌙"
+			case .partlyCloudy: return "🌤️"
+			case .overcast: return "🌥️"
+			case .fog, .rimeFog: return "🌫️"
+			case .lightDrizzle, .moderateDrizzle, .intenseDrizzle: return isDay == 1 ? "🌦️" : "🌧️"
 
-		case .lightFreezingDrizzle, .intenseFreezingDrizzle, .lightFreezingRain,
-			.heavyFreezingRain, .slightSnowShowers, .heavySnowShowers: return "🌨️"
+			case .lightFreezingDrizzle, .intenseFreezingDrizzle, .lightFreezingRain,
+				.heavyFreezingRain, .slightSnowShowers, .heavySnowShowers: return "🌨️"
 
-		case .lightRain, .moderateRain, .heavyRain, .slightRainShowers, .moderateRainShowers,
-			.violentRainShowers: return isDay == 1 ? "🌦️" : "🌧️"
+			case .lightRain, .moderateRain, .heavyRain, .slightRainShowers, .moderateRainShowers,
+				.violentRainShowers: return isDay == 1 ? "🌦️" : "🌧️"
 
-		case .slightSnowFall, .moderateSnowFall, .heavySnowFall, .snowGrains: return "❄️"
-		case .thunderstorm: return "⛈"
+			case .slightSnowFall, .moderateSnowFall, .heavySnowFall, .snowGrains: return "❄️"
+			case .thunderstorm, .thunderstormWithSlightHail, .thunderstormWithHeavyHail: return "⛈"
+		}
 	}
 }

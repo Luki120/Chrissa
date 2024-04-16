@@ -6,7 +6,7 @@ public struct WeatherModel: Codable {
 	public let dailyWeather: DailyWeather
 
 	enum CodingKeys: String, CodingKey {
-		case currentWeather = "current_weather"
+		case currentWeather = "current"
 		case dailyWeather = "daily"
 	}
 }
@@ -18,13 +18,9 @@ public struct CurrentWeather: Codable {
 	public let isDay: Int
 
 	public enum CodingKeys: String, CodingKey {
-		case temperature
-		case weatherCode = "weathercode"
+		case temperature = "temperature_2m"
+		case weatherCode = "weather_code"
 		case isDay = "is_day"
-	}
-
-	public func unicode(for condition: Condition) -> String {
-		return Chrissa.unicode(for: condition, isDay: isDay)
 	}
 }
 
@@ -32,8 +28,8 @@ public struct CurrentWeather: Codable {
 public struct DailyWeather: Codable {
 	public let low: Double
 	public let high: Double
-	public let sunrise: String
-	public let sunset: String
+	public let sunrise: TimeInterval
+	public let sunset: TimeInterval
 
 	public enum CodingKeys: String, CodingKey {
 		case low = "temperature_2m_min"
@@ -42,7 +38,7 @@ public struct DailyWeather: Codable {
 		case sunset
 	}
 
-	public init(low: Double, high: Double, sunrise: String, sunset: String) {
+	public init(low: Double, high: Double, sunrise: TimeInterval, sunset: TimeInterval) {
 		self.low = low
 		self.high = high
 		self.sunrise = sunrise
@@ -54,8 +50,8 @@ public struct DailyWeather: Codable {
 
 		guard let low = try container.decode([Double].self, forKey: DailyWeather.CodingKeys.low).first,
 			let high = try container.decode([Double].self, forKey: DailyWeather.CodingKeys.high).first,
-			let sunrise = try container.decode([String].self, forKey: DailyWeather.CodingKeys.sunrise).first,
-			let sunset = try container.decode([String].self, forKey: DailyWeather.CodingKeys.sunset).first else {
+			let sunrise = try container.decode([TimeInterval].self, forKey: DailyWeather.CodingKeys.sunrise).first,
+			let sunset = try container.decode([TimeInterval].self, forKey: DailyWeather.CodingKeys.sunset).first else {
 				throw URLError(.cannotDecodeRawData)
 			}
 
@@ -84,7 +80,7 @@ extension WeatherModel: _ObjectiveCBridgeable {
 	public static func _unconditionallyBridgeFromObjectiveC(_ source: CHWeatherModel?) -> WeatherModel {
 		return WeatherModel(
 			currentWeather: source?.currentWeather ?? CurrentWeather(temperature: 0, weatherCode: 0, isDay: 0),
-			dailyWeather: source?.dailyWeather ?? DailyWeather(low: 0, high: 0, sunrise: "", sunset: "")
+			dailyWeather: source?.dailyWeather ?? DailyWeather(low: 0, high: 0, sunrise: 0, sunset: 0)
 		)
 	}
 
@@ -134,8 +130,8 @@ extension DailyWeather: _ObjectiveCBridgeable {
 		return DailyWeather(
 			low: source?.low ?? 0,
 			high: source?.high ?? 0,
-			sunrise: source?.sunrise ?? "",
-			sunset: source?.sunset ?? ""
+			sunrise: source?.sunrise ?? 0,
+			sunset: source?.sunset ?? 0
 		)
 	}
 
@@ -171,10 +167,6 @@ public class CHCurrentWeather: NSObject {
 		self.isDay = isDay
 		super.init()
 	}
-
-	public func unicode(for condition: Condition) -> String {
-		return Chrissa.unicode(for: condition, isDay: isDay)
-	}
 }
 
 @objcMembers
@@ -182,10 +174,10 @@ public class CHCurrentWeather: NSObject {
 public class CHDailyWeather: NSObject {
 	public let low: Double
 	public let high: Double
-	public let sunrise: String
-	public let sunset: String
+	public let sunrise: TimeInterval
+	public let sunset: TimeInterval
 
-	public init(low: Double, high: Double, sunrise: String, sunset: String) {
+	public init(low: Double, high: Double, sunrise: TimeInterval, sunset: TimeInterval) {
 		self.low = low
 		self.high = high
 		self.sunrise = sunrise
