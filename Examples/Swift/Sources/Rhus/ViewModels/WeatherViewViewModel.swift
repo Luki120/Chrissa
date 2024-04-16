@@ -9,7 +9,7 @@ final class WeatherViewViewModel: ObservableObject {
 	@Published private(set) var sunsetText = ""
 
 	private var lastRefreshDate: Date = .distantPast
-	private var subscriptions = Set<AnyCancellable>()
+	private var updateWeatherSubscription: AnyCancellable?
 
 	static private let dateFormatter: DateFormatter = {
 		let formatter = DateFormatter()
@@ -17,40 +17,47 @@ final class WeatherViewViewModel: ObservableObject {
 		return formatter
 	}()
 
-	static private let numberFormatter: NumberFormatter = {
-		let formatter = NumberFormatter()
-		formatter.numberStyle = .decimal
-		formatter.maximumFractionDigits = 0
+	static private let measurementFormatter: MeasurementFormatter = {
+		let formatter = MeasurementFormatter()
+		formatter.numberFormatter.numberStyle = .decimal
+		formatter.numberFormatter.maximumFractionDigits = 0
 		return formatter
 	}()
 
 	func updateWeather() {
 		guard shouldRefresh() else { return }
+		updateWeatherSubscription = nil
 
-		try? WeatherService.shared.fetchWeather()
+		do {
+			updateWeatherSubscription = try WeatherService.shared.fetchWeather()
+				.map { $0 as Optional<WeatherModel> }
+				.replaceError(with: nil)
+				.compactMap { $0 }
+				.combineLatest(WeatherService.shared.$locationName)
 				.receive(on: DispatchQueue.main)
-				.sink(receiveCompletion: { _ in }) { [weak self] weatherModel in
-					guard let self, let weather = weatherModel.weather.first else { return }
+				.sink { [weak self] weatherModel, locationName in
+					guard let self else { return }
 
-					WeatherService.shared.condition = weather.condition
+					let measurement = Measurement(value: weatherModel.currentWeather.temperature, unit: UnitTemperature.celsius)
+					let temperature = WeatherViewViewModel.measurementFormatter.string(from: measurement)
 
-					let temperature = weatherModel.main.temp - 273.15
-					let celsiusTemperature = WeatherViewViewModel.numberFormatter.string(from: temperature as NSNumber) ?? "0º"
-
-					let sunriseDate = Date(timeIntervalSince1970: weatherModel.sys.sunrise)
-					let sunsetDate = Date(timeIntervalSince1970: weatherModel.sys.sunset)
+					let sunriseDate = Date(timeIntervalSince1970: weatherModel.dailyWeather.sunrise)
+					let sunsetDate = Date(timeIntervalSince1970: weatherModel.dailyWeather.sunset)
 
 					self.sunriseText = WeatherViewViewModel.dateFormatter.string(from: sunriseDate)
 					self.sunsetText = WeatherViewViewModel.dateFormatter.string(from: sunsetDate)
 
-					guard let icon = WeatherService.shared.icons[weather.icon] else {
-						self.weatherText = "\(WeatherService.shared.condition.capitalized) | \(weatherModel.name) | \(celsiusTemperature)º"
+					guard let condition = Condition(rawValue: weatherModel.currentWeather.weatherCode) else {
 						return
 					}
 
-					self.weatherText = "\(icon) \(weatherModel.name) | \(celsiusTemperature)º"
+					let unicode = condition.unicode(isDay: weatherModel.currentWeather.isDay) 
+					weatherText = "\(unicode) \(locationName) | \(temperature)"
 				}
-				.store(in: &subscriptions)
+		}
+		catch {
+			NSLog("CHRISSA: \(error)")
+		}
 
 		lastRefreshDate = Date()
 	}
@@ -59,12 +66,4 @@ final class WeatherViewViewModel: ObservableObject {
 		return -lastRefreshDate.timeIntervalSinceNow > 300
 	}
 
-}
-
-extension String {
-	var capitalized: String {
-		let firstLetter = self.prefix(1).capitalized
-		let remainingLetters = self.dropFirst().lowercased()
-		return firstLetter + remainingLetters
-	}
 }
