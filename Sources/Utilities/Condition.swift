@@ -35,15 +35,13 @@ public enum Condition: Int {
 		switch self {
 			case .clearSky: return isDay == 1 ? "☀️" : "🌙"
 			case .partlyCloudy: return "🌤️"
-			case .overcast: return "🌥️"
+			case .overcast: return isDay == 1 ? "🌥️" : "☁️"
 			case .fog, .rimeFog: return "🌫️"
-			case .lightDrizzle, .moderateDrizzle, .intenseDrizzle: return isDay == 1 ? "🌦️" : "🌧️"
+			case .lightDrizzle, .moderateDrizzle, .intenseDrizzle, .lightRain, .moderateRain, .heavyRain,
+				.slightRainShowers, .moderateRainShowers, .violentRainShowers: return isDay == 1 ? "🌦️" : "🌧️"
 
 			case .lightFreezingDrizzle, .intenseFreezingDrizzle, .lightFreezingRain,
 				.heavyFreezingRain, .slightSnowShowers, .heavySnowShowers: return "🌨️"
-
-			case .lightRain, .moderateRain, .heavyRain, .slightRainShowers, .moderateRainShowers,
-				.violentRainShowers: return isDay == 1 ? "🌦️" : "🌧️"
 
 			case .slightSnowFall, .moderateSnowFall, .heavySnowFall, .snowGrains: return "❄️"
 			case .thunderstorm, .thunderstormWithSlightHail, .thunderstormWithHeavyHail: return "⛈"
