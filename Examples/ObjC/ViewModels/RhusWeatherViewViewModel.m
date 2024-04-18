@@ -5,22 +5,19 @@
 
 	NSDate *_lastRefreshDate;
 	NSDateFormatter *_dateFormatter;
+	NSMeasurementFormatter *_measurementFormatter;
 	NSString *_sunriseText;
 	NSString *_sunsetText;
 	NSString *_weatherText;
 
 }
 
-
 - (id)init {
 
 	self = [super init];
 	if(!self) return nil;
 
-	if(!_dateFormatter) {
-		_dateFormatter = [NSDateFormatter new];
-		_dateFormatter.dateFormat = @"HH:mm";
-	}
+	[self _setupFormatters];
 
 	_lastRefreshDate = [NSDate distantPast];
 
@@ -33,19 +30,35 @@
 
 	if(![self _shouldRefresh]) return;
 
-	[[CHWeatherService sharedInstance] fetchWeatherWithCompletion:^(CHWeatherModel *weatherModel) {
+	NSError *weatherError;
 
-		NSString *name = weatherModel.name;
-		CGFloat celsiusTemperature = weatherModel.main.temp - 273.15;
+	BOOL success = [[CHWeatherService sharedInstance] fetchWeatherAndReturnError:&weatherError completion:^(CHWeatherModel *weatherModel) {
 
-		NSDictionary *icons = [[CHWeatherService sharedInstance] icons];
+		NSMeasurement *measurement = [[NSMeasurement alloc]
+			initWithDoubleValue:weatherModel.currentWeather.temperature
+			unit:[NSUnitTemperature celsius]
+		];
 
-		_sunriseText = [_dateFormatter stringFromDate:[NSDate dateWithTimeIntervalSince1970: weatherModel.sys.sunrise]];
-		_sunsetText = [_dateFormatter stringFromDate:[NSDate dateWithTimeIntervalSince1970: weatherModel.sys.sunset]];
-		_weatherText = [NSString stringWithFormat: @"%@ %@ | %.fº", icons[weatherModel.weather[0].icon], name, celsiusTemperature];
+		NSString *temperature = [_measurementFormatter stringFromMeasurement: measurement];
+
+		NSDate *sunriseDate = [NSDate dateWithTimeIntervalSince1970: weatherModel.dailyWeather.sunrise];
+		NSDate *sunsetDate = [NSDate dateWithTimeIntervalSince1970: weatherModel.dailyWeather.sunset];
+
+		_sunriseText = [_dateFormatter stringFromDate: sunriseDate];
+		_sunsetText = [_dateFormatter stringFromDate: sunsetDate];
+
+		NSString *locationName = [[CHWeatherService sharedInstance] locationName];
+		NSString *unicode = [self _unicodeForCondition:weatherModel.currentWeather.weatherCode
+			isDay: weatherModel.currentWeather.isDay
+		];
+
+		_weatherText = [NSString stringWithFormat: @"%@ %@ | %@", unicode, locationName, temperature];
 
 		completion(_weatherText, _sunriseText, _sunsetText);
+
 	}];
+
+	if(!success) NSLog(@"%@", weatherError.localizedDescription);
 
 	_lastRefreshDate = [NSDate new];
 
@@ -53,9 +66,64 @@
 
 // ! Private
 
+- (void)_setupFormatters {
+
+	if(!_dateFormatter) {
+		_dateFormatter = [NSDateFormatter new];
+		_dateFormatter.dateFormat = @"HH:mm";
+	}
+
+	if(!_measurementFormatter) {
+		_measurementFormatter = [NSMeasurementFormatter new];
+		_measurementFormatter.numberFormatter.numberStyle = NSNumberFormatterDecimalStyle;
+		_measurementFormatter.numberFormatter.maximumFractionDigits = 0;
+	}
+
+}
+
 - (BOOL)_shouldRefresh {
 
 	return -[_lastRefreshDate timeIntervalSinceNow] > 300;
+
+}
+
+
+- (NSString *)_unicodeForCondition:(Condition)condition isDay:(BOOL)isDay {
+
+	switch(condition) {
+		case ConditionClearSky: return isDay == 1 ? @"☀️" : @"🌙";
+		case ConditionPartlyCloudy: return @"🌤️";
+		case ConditionOvercast: return isDay == 1 ? @"🌥️" : @"☁️";
+
+		case ConditionFog:
+		case ConditionRimeFog: return @"🌫️";
+
+		case ConditionLightDrizzle:
+		case ConditionModerateDrizzle:
+		case ConditionIntenseDrizzle:
+		case ConditionLightRain:
+		case ConditionModerateRain:
+		case ConditionHeavyRain:
+		case ConditionSlightRainShowers:
+		case ConditionModerateRainShowers:
+		case ConditionViolentRainShowers: return isDay == 1 ? @"🌦️" : @"🌧️";
+
+		case ConditionLightFreezingDrizzle:
+		case ConditionIntenseFreezingDrizzle:
+		case ConditionLightFreezingRain:
+		case ConditionHeavyFreezingRain:
+		case ConditionSlightSnowShowers:
+		case ConditionHeavySnowShowers: return @"🌨️";
+
+		case ConditionSlightSnowFall:
+		case ConditionModerateSnowFall:
+		case ConditionHeavySnowFall:
+		case ConditionSnowGrains: return @"❄️";
+
+		case ConditionThunderstorm:
+		case ConditionThunderstormWithSlightHail:
+		case ConditionThunderstormWithHeavyHail: return @"⛈";
+	}
 
 }
 

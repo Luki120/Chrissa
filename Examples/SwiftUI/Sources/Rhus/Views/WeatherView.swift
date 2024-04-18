@@ -15,10 +15,10 @@ struct WeatherView: View {
 					viewModel.updateWeather()
 				}
 
-			if let sunrise = viewModel.sunrise, let sunset = viewModel.sunset {
+			if let sunriseText = viewModel.sunriseText, let sunsetText = viewModel.sunsetText {
 				HStack(spacing: 4) {
-					SunriseSunsetLabel(name: "sunrise.fill", text: sunrise)
-					SunriseSunsetLabel(name: "sunset.fill", text: sunset)
+					SunriseSunsetLabel(name: "sunrise.fill", text: sunriseText)
+					SunriseSunsetLabel(name: "sunset.fill", text: sunsetText)
 				}
 			}
 		}

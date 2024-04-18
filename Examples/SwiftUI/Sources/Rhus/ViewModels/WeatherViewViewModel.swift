@@ -5,11 +5,11 @@ import Combine
 final class WeatherViewViewModel: ObservableObject {
 
 	@Published private(set) var weatherText = ""
-	@Published private(set) var sunrise: String?
-	@Published private(set) var sunset: String?
+	@Published private(set) var sunriseText: String?
+	@Published private(set) var sunsetText: String?
 
 	private var lastRefreshDate: Date = .distantPast
-	private var subscriptions = Set<AnyCancellable>()
+	private var updateWeatherSubscription: AnyCancellable?
 
 	static private let dateFormatter: DateFormatter = {
 		let formatter = DateFormatter()
@@ -17,40 +17,47 @@ final class WeatherViewViewModel: ObservableObject {
 		return formatter
 	}()
 
-	static private let numberFormatter: NumberFormatter = {
-		let formatter = NumberFormatter()
-		formatter.numberStyle = .decimal
-		formatter.maximumFractionDigits = 0
+	static private let measurementFormatter: MeasurementFormatter = {
+		let formatter = MeasurementFormatter()
+		formatter.numberFormatter.numberStyle = .decimal
+		formatter.numberFormatter.maximumFractionDigits = 0
 		return formatter
 	}()
 
 	func updateWeather() {
 		guard shouldRefresh() else { return }
+		updateWeatherSubscription = nil
 
-		try? WeatherService.shared.fetchWeather()
+		do {
+			updateWeatherSubscription = try WeatherService.shared.fetchWeather()
+				.map { $0 as Optional<WeatherModel> }
+				.replaceError(with: nil)
+				.compactMap { $0 }
+				.combineLatest(WeatherService.shared.$locationName)
 				.receive(on: DispatchQueue.main)
-				.sink(receiveCompletion: { _ in }) { [weak self] weatherModel in
-					guard let self, let weather = weatherModel.weather.first else { return }
+				.sink { [weak self] weatherModel, locationName in
+					guard let self else { return }
 
-					WeatherService.shared.condition = weather.condition
+					let measurement = Measurement(value: weatherModel.currentWeather.temperature, unit: UnitTemperature.celsius)
+					let temperature = WeatherViewViewModel.measurementFormatter.string(from: measurement)
 
-					let temperature = weatherModel.main.temp - 273.15
-					let celsiusTemperature = WeatherViewViewModel.numberFormatter.string(from: temperature as NSNumber) ?? "0º"
+					let sunriseTextDate = Date(timeIntervalSince1970: weatherModel.dailyWeather.sunrise)
+					let sunsetTextDate = Date(timeIntervalSince1970: weatherModel.dailyWeather.sunset)
 
-					let sunriseDate = Date(timeIntervalSince1970: weatherModel.sys.sunrise)
-					let sunsetDate = Date(timeIntervalSince1970: weatherModel.sys.sunset)
+					self.sunriseText = WeatherViewViewModel.dateFormatter.string(from: sunriseTextDate)
+					self.sunsetText = WeatherViewViewModel.dateFormatter.string(from: sunsetTextDate)
 
-					self.sunrise = WeatherViewViewModel.dateFormatter.string(from: sunriseDate)
-					self.sunset = WeatherViewViewModel.dateFormatter.string(from: sunsetDate)
-
-					guard let icon = WeatherService.shared.icons[weather.icon] else {
-						self.weatherText = "\(WeatherService.shared.condition.capitalized) | \(weatherModel.name) | \(celsiusTemperature)º"
+					guard let condition = Condition(rawValue: weatherModel.currentWeather.weatherCode) else {
 						return
 					}
 
-					self.weatherText = "\(icon) \(weatherModel.name) | \(celsiusTemperature)º"
+					let unicode = condition.unicode(isDay: weatherModel.currentWeather.isDay) 
+					weatherText = "\(unicode) \(locationName) | \(temperature)"
 				}
-				.store(in: &subscriptions)
+		}
+		catch {
+			NSLog("CHRISSA: \(error.localizedDescription)")
+		}
 
 		lastRefreshDate = Date()
 	}
@@ -63,12 +70,4 @@ final class WeatherViewViewModel: ObservableObject {
 
 extension Notification.Name {
 	static let didRefreshWeatherDataNotification = Notification.Name("didRefreshWeatherDataNotification")
-}
-
-extension String {
-	var capitalized: String {
-		let firstLetter = self.prefix(1).capitalized
-		let remainingLetters = self.dropFirst().lowercased()
-		return firstLetter + remainingLetters
-	}
 }
