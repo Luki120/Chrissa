@@ -56,7 +56,7 @@ final class WeatherViewViewModel: ObservableObject {
 				}
 		}
 		catch {
-			NSLog("CHRISSA: \(error)")
+			NSLog("CHRISSA: \(error.localizedDescription)")
 		}
 
 		lastRefreshDate = Date()
