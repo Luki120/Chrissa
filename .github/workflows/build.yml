@@ -16,8 +16,8 @@ jobs:
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
-          latest_commit=$(gh api -H 'Accept: application/vnd.github.sha' \
-          /repos/theos/theos/commits/master); echo "latest_commit=$latest_commit" >> $GITHUB_OUTPUT
+            latest_commit=$(gh api -H 'Accept: application/vnd.github.sha' \
+            /repos/theos/theos/commits/master); echo "latest_commit=$latest_commit" >> $GITHUB_OUTPUT
         id: commit
 
       - uses: actions/cache@v4
@@ -54,6 +54,6 @@ jobs:
           done
 
       - name: Upload artifact
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           path: "**/packages/*.deb"
