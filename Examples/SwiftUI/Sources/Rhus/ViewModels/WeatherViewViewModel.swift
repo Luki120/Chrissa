@@ -30,28 +30,26 @@ final class WeatherViewViewModel: ObservableObject {
 
 		do {
 			updateWeatherSubscription = try WeatherService.shared.fetchWeather()
-				.map { $0 as Optional<WeatherModel> }
+				.map { $0 as Optional<Weather> }
 				.replaceError(with: nil)
 				.compactMap { $0 }
 				.combineLatest(WeatherService.shared.$locationName)
 				.receive(on: DispatchQueue.main)
-				.sink { [weak self] weatherModel, locationName in
+				.sink { [weak self] weather, locationName in
 					guard let self else { return }
 
-					let measurement = Measurement(value: weatherModel.currentWeather.temperature, unit: UnitTemperature.celsius)
+					let measurement = Measurement(value: weather.current.temperature, unit: UnitTemperature.celsius)
 					let temperature = WeatherViewViewModel.measurementFormatter.string(from: measurement)
 
-					let sunriseTextDate = Date(timeIntervalSince1970: weatherModel.dailyWeather.sunrise)
-					let sunsetTextDate = Date(timeIntervalSince1970: weatherModel.dailyWeather.sunset)
+					let sunriseDate = Date(timeIntervalSince1970: weather.daily.sunrise)
+					let sunsetDate = Date(timeIntervalSince1970: weather.daily.sunset)
 
-					self.sunriseText = WeatherViewViewModel.dateFormatter.string(from: sunriseTextDate)
-					self.sunsetText = WeatherViewViewModel.dateFormatter.string(from: sunsetTextDate)
+					self.sunriseText = WeatherViewViewModel.dateFormatter.string(from: sunriseDate)
+					self.sunsetText = WeatherViewViewModel.dateFormatter.string(from: sunsetDate)
 
-					guard let condition = Condition(rawValue: weatherModel.currentWeather.weatherCode) else {
-						return
-					}
+					guard let condition = Condition(rawValue: weather.current.weatherCode) else { return }
 
-					let unicode = condition.unicode(isDay: weatherModel.currentWeather.isDay) 
+					let unicode = condition.unicode(isDay: weather.current.isDay)
 					weatherText = "\(unicode) \(locationName) | \(temperature)"
 				}
 		}

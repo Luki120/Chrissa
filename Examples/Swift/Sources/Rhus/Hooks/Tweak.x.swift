@@ -20,7 +20,8 @@ class SBFLockScreenDateVCHook: ClassHook<UIViewController> {
 		target.view.addSubview(_weatherView)
 
 		_weatherView.topAnchor.constraint(equalTo: target.view.bottomAnchor, constant: 10).isActive = true
-		_weatherView.centerXAnchor.constraint(equalTo: target.view.centerXAnchor).isActive = true
+		_weatherView.leadingAnchor.constraint(equalTo: target.view.leadingAnchor).isActive = true
+		_weatherView.trailingAnchor.constraint(equalTo: target.view.trailingAnchor).isActive = true
 	}
 
 	func viewWillAppear(_ animated: Bool) {

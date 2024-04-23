@@ -32,25 +32,22 @@
 
 	NSError *weatherError;
 
-	BOOL success = [[CHWeatherService sharedInstance] fetchWeatherAndReturnError:&weatherError completion:^(CHWeatherModel *weatherModel) {
+	BOOL success = [[CHWeatherService sharedInstance] fetchWeatherAndReturnError:&weatherError completion:^(CHWeather *weather, NSString *locationName) {
 
 		NSMeasurement *measurement = [[NSMeasurement alloc]
-			initWithDoubleValue:weatherModel.currentWeather.temperature
+			initWithDoubleValue:weather.current.temperature
 			unit:[NSUnitTemperature celsius]
 		];
 
 		NSString *temperature = [_measurementFormatter stringFromMeasurement: measurement];
 
-		NSDate *sunriseDate = [NSDate dateWithTimeIntervalSince1970: weatherModel.dailyWeather.sunrise];
-		NSDate *sunsetDate = [NSDate dateWithTimeIntervalSince1970: weatherModel.dailyWeather.sunset];
+		NSDate *sunriseDate = [NSDate dateWithTimeIntervalSince1970: weather.daily.sunrise];
+		NSDate *sunsetDate = [NSDate dateWithTimeIntervalSince1970: weather.daily.sunset];
 
 		_sunriseText = [_dateFormatter stringFromDate: sunriseDate];
 		_sunsetText = [_dateFormatter stringFromDate: sunsetDate];
 
-		NSString *locationName = [[CHWeatherService sharedInstance] locationName];
-		NSString *unicode = [self _unicodeForCondition:weatherModel.currentWeather.weatherCode
-			isDay: weatherModel.currentWeather.isDay
-		];
+		NSString *unicode = [self _unicodeForCondition:weather.current.weatherCode isDay: weather.current.isDay];
 
 		_weatherText = [NSString stringWithFormat: @"%@ %@ | %@", unicode, locationName, temperature];
 

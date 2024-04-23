@@ -24,7 +24,8 @@ static void overrideVDL(SBFLockScreenDateViewController *self, SEL _cmd) {
 	[self.view addSubview: _weatherView];
 
 	[_weatherView.topAnchor constraintEqualToAnchor: self.view.bottomAnchor constant: 10].active = YES;
-	[_weatherView.centerXAnchor constraintEqualToAnchor: self.view.centerXAnchor].active = YES;
+	[_weatherView.leadingAnchor constraintEqualToAnchor: self.view.leadingAnchor].active = YES;
+	[_weatherView.trailingAnchor constraintEqualToAnchor: self.view.trailingAnchor].active = YES;
 
 }
 
