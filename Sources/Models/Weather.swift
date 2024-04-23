@@ -1,14 +1,9 @@
 import Foundation
 
 /// Weather model struct
-public struct WeatherModel: Codable {
-	public let currentWeather: CurrentWeather
-	public let dailyWeather: DailyWeather
-
-	enum CodingKeys: String, CodingKey {
-		case currentWeather = "current"
-		case dailyWeather = "daily"
-	}
+public struct Weather: Codable {
+	public let current: CurrentWeather
+	public let daily: DailyWeather
 }
 
 /// Current weather model struct
@@ -46,7 +41,7 @@ public struct DailyWeather: Codable {
 	}
 
 	public init(from decoder: Decoder) throws {
-		let container: KeyedDecodingContainer<DailyWeather.CodingKeys> = try decoder.container(keyedBy: DailyWeather.CodingKeys.self)
+		let container = try decoder.container(keyedBy: DailyWeather.CodingKeys.self)
 
 		guard let low = try container.decode([Double].self, forKey: DailyWeather.CodingKeys.low).first,
 			let high = try container.decode([Double].self, forKey: DailyWeather.CodingKeys.high).first,
@@ -66,26 +61,26 @@ public struct DailyWeather: Codable {
 
 // This is just great, by conforming to this secret shady private protocol Swift gets a struct & ObjC a class :tm:
 
-extension WeatherModel: _ObjectiveCBridgeable {
-	public typealias _ObjectiveCType = CHWeatherModel
+extension Weather: _ObjectiveCBridgeable {
+	public typealias _ObjectiveCType = CHWeather
 
-	public func _bridgeToObjectiveC() -> CHWeatherModel {
-		return CHWeatherModel(currentWeather: currentWeather, dailyWeather: dailyWeather)
+	public func _bridgeToObjectiveC() -> CHWeather {
+		return CHWeather(current: current, daily: daily)
 	}
 
-	public static func _forceBridgeFromObjectiveC(_ source: CHWeatherModel, result: inout WeatherModel?) {
-		result = WeatherModel(currentWeather: source.currentWeather, dailyWeather: source.dailyWeather)
+	public static func _forceBridgeFromObjectiveC(_ source: CHWeather, result: inout Weather?) {
+		result = Weather(current: source.current, daily: source.daily)
 	}
 
-	public static func _unconditionallyBridgeFromObjectiveC(_ source: CHWeatherModel?) -> WeatherModel {
-		return WeatherModel(
-			currentWeather: source?.currentWeather ?? CurrentWeather(temperature: 0, weatherCode: 0, isDay: 0),
-			dailyWeather: source?.dailyWeather ?? DailyWeather(low: 0, high: 0, sunrise: 0, sunset: 0)
+	public static func _unconditionallyBridgeFromObjectiveC(_ source: CHWeather?) -> Weather {
+		return Weather(
+			current: source?.current ?? CurrentWeather(temperature: 0, weatherCode: 0, isDay: 0),
+			daily: source?.daily ?? DailyWeather(low: 0, high: 0, sunrise: 0, sunset: 0)
 		)
 	}
 
-	public static func _conditionallyBridgeFromObjectiveC(_ source: CHWeatherModel, result: inout WeatherModel?) -> Bool {
-		result = WeatherModel(currentWeather: source.currentWeather, dailyWeather: source.dailyWeather)
+	public static func _conditionallyBridgeFromObjectiveC(_ source: CHWeather, result: inout Weather?) -> Bool {
+		result = Weather(current: source.current, daily: source.daily)
 		return true
 	}
 }
@@ -142,14 +137,14 @@ extension DailyWeather: _ObjectiveCBridgeable {
 }
 
 @objcMembers
-@objc(CHWeatherModel)
-public class CHWeatherModel: NSObject {
-	public let currentWeather: CurrentWeather
-	public let dailyWeather: DailyWeather
+@objc(CHWeather)
+public class CHWeather: NSObject {
+	public let current: CurrentWeather
+	public let daily: DailyWeather
 
-	public init(currentWeather: CurrentWeather, dailyWeather: DailyWeather) {
-		self.currentWeather = currentWeather
-		self.dailyWeather = dailyWeather
+	public init(current: CurrentWeather, daily: DailyWeather) {
+		self.current = current
+		self.daily = daily
 		super.init()
 	}
 }
