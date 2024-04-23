@@ -2,6 +2,23 @@
 
 * Straightforward weather framework built using Combine. It works by enabling location access on SpringBoard, therefore there's no need to open the weather app as the data refreshes instantly :tm:
 
+## Usage
+
+* Compile the project, run `make clean do` & everything will be done automatically
+* Import Chrissa in your project `import Chrissa`
+* Add the framework to your Makefile `TWEAK_EXTRA_FRAMEWORKS = Chrissa`
+* Make Chrissa a dependency of your tweak in the control file `Depends: me.luki.chrissa`
+
+---
+
+Chrissa exposes two functions for you to use, the latter one is recommended only for objc compatibility. Check the [examples](./Examples) to see how to use them & their documentation
+```swift
+public func fetchWeather<T: Codable>(expecting type: T.Type = Weather.self) throws -> AnyPublisher<T, Error>
+
+@objc
+public func fetchWeather(completion: @escaping (Weather, String) -> Void) throws
+```
+
 ## Socials
 
 * [Twitter](https://twitter.com/Lukii120)
