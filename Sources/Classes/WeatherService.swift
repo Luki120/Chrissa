@@ -61,7 +61,7 @@ extension WeatherService {
 
 	/// Function to make API calls
 	/// - Parameters:
-	///		- completion: Escaping closure that takes a WeatherModel object & a String as argument & returns nothing
+	///		- completion: Escaping closure that takes a Weather object & a String as argument & returns nothing
 	/// - Throws: An error of type URLError
 	@objc
 	public func fetchWeather(completion: @escaping (Weather, String) -> Void) throws {
