@@ -17,7 +17,6 @@ before-stage::
 	@$(PRINT_FORMAT_YELLOW) "Copying neccessary files for functionality"
 	$(eval SOURCE_FILE := $(THEOS_OBJ_DIR)/arm64/generated/$(FRAMEWORK_NAME)-Swift.h)
 	$(eval FRAMEWORK_DIR := $(THEOS_OBJ_DIR)/$(FRAMEWORK_NAME).framework)
-	@mkdir -p $(THEOS)/lib/iphone/rootless/
 	@mkdir -p $(FRAMEWORK_DIR)/Modules/$(FRAMEWORK_NAME).swiftmodule/Project
 	@cp $(SOURCE_FILE) $(FRAMEWORK_DIR)/Headers/$(FRAMEWORK_NAME)-Swift.h
 	@cp _module.modulemap $(FRAMEWORK_DIR)/Modules/module.modulemap
