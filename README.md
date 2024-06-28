@@ -1,4 +1,4 @@
-## Chrissa
+# Chrissa
 
 * Straightforward weather framework built using Combine. It works by enabling location access on SpringBoard, therefore there's no need to open the weather app as the data refreshes instantly :tm:
 
