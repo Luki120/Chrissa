@@ -55,7 +55,7 @@
 
 	}];
 
-	if(!success) NSLog(@"%@", weatherError.localizedDescription);
+	if(!success) NSLog(@"CHRISSA: %@", weatherError.localizedDescription);
 
 	_lastRefreshDate = [NSDate new];
 
