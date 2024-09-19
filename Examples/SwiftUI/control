@@ -6,4 +6,4 @@ Description: An awesome Orion tweak!
 Maintainer: Luki
 Author: Luki
 Section: Tweaks
-Depends: ${ORION}, firmware (>= 12.2)
+Depends: ${ORION}, firmware (>= 12.2), me.luki.chrissa
