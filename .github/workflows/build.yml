@@ -2,10 +2,14 @@ name: Makefile CI
 
 on:
   push:
-    branches: [ "main" ]
-  pull_request:
-    branches: [ "main" ]
-    
+    branches:
+      - main
+    paths:
+      - Examples/**
+      - Sources/**
+
+  workflow_dispatch:
+
 jobs:
   build:
     runs-on: macos-14
@@ -36,6 +40,7 @@ jobs:
           path: theos
 
       - name: Checkout theos/sdks
+        if: steps.cache-theos.outputs.cache-hit != 'true'
         uses: actions/checkout@main
         with:
           repository: theos/sdks
@@ -50,7 +55,7 @@ jobs:
 
           export THEOS="$(pwd)/theos"
           for PROJECT in Examples/* ; do
-          gmake -C "${PROJECT}" clean package TARGET="iphone:clang:16.5:14.0" FINALPACKAGE=1 THEOS_PACKAGE_DIR_NAME="../../packages" THEOS_PACKAGE_SCHEME=rootless
+            gmake -C "${PROJECT}" clean package TARGET="iphone:clang:16.5:14.0" FINALPACKAGE=1 THEOS_PACKAGE_DIR_NAME="../../packages" THEOS_PACKAGE_SCHEME=rootless
           done
 
       - name: Upload artifact
