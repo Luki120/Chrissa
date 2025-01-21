@@ -13,8 +13,11 @@ Chrissa_SWIFT_BRIDGING_HEADER = Sources/Headers/Chrissa-Bridging-Header.h
 include $(THEOS)/makefiles/common.mk
 include $(THEOS_MAKE_PATH)/framework.mk
 
+before-Chrissa-all::
+	@touch Sources/Utilities/Chrissa.m
+
 before-stage::
-	@$(PRINT_FORMAT_YELLOW) "Copying neccessary files for functionality"
+	@$(PRINT_FORMAT_YELLOW) "Copying necessary files for functionality"
 
 	$(eval SOURCE_FILE := $(THEOS_OBJ_DIR)/arm64/generated/$(FRAMEWORK_NAME)-Swift.h)
 	$(eval FRAMEWORK_DIR := $(THEOS_OBJ_DIR)/$(FRAMEWORK_NAME).framework)
@@ -28,6 +31,9 @@ before-stage::
 			cp $(THEOS_OBJ_DIR)/$$arch/$(FRAMEWORK_NAME).$$file $(FRAMEWORK_DIR)/Modules/$(FRAMEWORK_NAME).swiftmodule/$$arch-apple-ios.$$file; \
 		done; \
 	done
+
+after-Chrissa-all::
+	@rm -rf Sources/Utilities/Chrissa.m
 
 after-install::
 	install.exec "killall SpringBoard"
