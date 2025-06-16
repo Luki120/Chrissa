@@ -1,0 +1,9 @@
+Package: me.luki.rhusjailed
+Name: Rhus
+Version: 0.9.0
+Architecture: iphoneos-arm
+Description: An awesome SwiftUI application!
+Maintainer: Luki
+Author: Luki
+Section: Utilities
+Depends: firmware (>= 14.0)
