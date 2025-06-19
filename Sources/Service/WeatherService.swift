@@ -14,6 +14,9 @@ public final class WeatherService: NSObject, ObservableObject {
 
 	private enum Constants {
 		static let baseURL = "https://api.open-meteo.com/v1/forecast?"
+		static let currentParameters = "&current=apparent_temperature,temperature_2m,is_day,relative_humidity_2m,weather_code,wind_speed_10m"
+		static let dailyParamaters = "&daily=sunrise,sunset,temperature_2m_max,temperature_2m_min"
+		static let hourlyParameters = "&hourly=is_day,precipitation_probability,temperature_2m,weather_code"		
 	}
 
 	/// `String` that represents the current location name
@@ -38,7 +41,11 @@ public final class WeatherService: NSObject, ObservableObject {
 			}
 			.store(in: &subscriptions)
 
-		let apiURL = "\(Constants.baseURL)latitude=\(latitude)&longitude=\(longitude)&current=temperature_2m,apparent_temperature,weather_code,is_day&daily=temperature_2m_max,temperature_2m_min,sunrise,sunset&forecast_days=1&timeformat=unixtime&timezone=auto"
+		var apiURL = "\(Constants.baseURL)latitude=\(latitude)&longitude=\(longitude)"
+		apiURL.append(Constants.currentParameters)
+		apiURL.append(Constants.dailyParamaters)
+		apiURL.append(Constants.hourlyParameters)
+		apiURL.append("&forecast_days=1&timeformat=unixtime&timezone=auto")
 
 		guard let url = URL(string: apiURL) else {
 			return Fail(error: URLError(.badURL)).eraseToAnyPublisher()
