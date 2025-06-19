@@ -26,7 +26,14 @@ extension Weather: _ObjectiveCBridgeable {
 	public
 	static func _unconditionallyBridgeFromObjectiveC(_ source: CHWeather?) -> Weather {
 		return Weather(
-			current: source?.current ?? CurrentWeather(temperature: 0, weatherCode: 0, isDay: 0),
+			current: source?.current ?? CurrentWeather(
+				temperature: 0,
+				weatherCode: 0,
+				feelsLike: 0,
+				windSpeed: 0,
+				humidity: 0,
+				isDay: 0
+			),
 			daily: source?.daily ?? DailyWeather(low: 0, high: 0, sunrise: 0, sunset: 0),
 			hourly: source?.hourly ?? HourlyWeather(
 				hours: [],
