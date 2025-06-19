@@ -4,6 +4,7 @@ import Foundation
 @objc
 public enum Condition: Int {
 	case clearSky = 0
+	case mainlyClear = 1
 	case partlyCloudy = 2
 	case overcast = 3
 	case fog = 45
@@ -33,7 +34,7 @@ public enum Condition: Int {
 
 	public func unicode(isDay: Int) -> String {
 		switch self {
-			case .clearSky: return isDay == 1 ? "☀️" : "🌙"
+			case .clearSky, .mainlyClear: return isDay == 1 ? "☀️" : "🌙"
 			case .partlyCloudy: return "🌤️"
 			case .overcast: return isDay == 1 ? "🌥️" : "☁️"
 			case .fog, .rimeFog: return "🌫️"
