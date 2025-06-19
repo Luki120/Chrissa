@@ -2,14 +2,12 @@
 
 
 @implementation RhusWeatherViewViewModel {
-
 	NSDate *_lastRefreshDate;
 	NSDateFormatter *_dateFormatter;
 	NSMeasurementFormatter *_measurementFormatter;
 	NSString *_sunriseText;
 	NSString *_sunsetText;
 	NSString *_weatherText;
-
 }
 
 - (id)init {
@@ -88,7 +86,10 @@
 - (NSString *)_unicodeForCondition:(Condition)condition isDay:(BOOL)isDay {
 
 	switch(condition) {
-		case ConditionClearSky: return isDay == 1 ? @"☀️" : @"🌙";
+		case ConditionClearSky:
+		case ConditionMainlyClear:
+			return isDay == 1 ? @"☀️" : @"🌙";
+
 		case ConditionPartlyCloudy: return @"🌤️";
 		case ConditionOvercast: return isDay == 1 ? @"🌥️" : @"☁️";
 
