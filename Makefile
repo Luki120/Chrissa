@@ -1,4 +1,4 @@
-TARGET := iphone:clang:latest:14.0
+TARGET := iphone:clang:17.4:14.0
 
 FRAMEWORK_NAME = Chrissa
 
