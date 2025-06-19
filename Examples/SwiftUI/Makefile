@@ -1,4 +1,4 @@
-TARGET := iphone:clang:18.5:14.0
+TARGET := iphone:clang:17.4:14.0
 INSTALL_TARGET_PROCESSES = SpringBoard
 
 TWEAK_NAME = Rhus

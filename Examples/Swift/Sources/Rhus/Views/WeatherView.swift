@@ -1,9 +1,8 @@
 import Combine
 import UIKit
 
-
+/// View that represents the weather
 final class WeatherView: UIView {
-
 	private let weatherViewModel = WeatherViewViewModel()
 
 	private lazy var weatherLabel: UILabel = {
@@ -41,11 +40,6 @@ final class WeatherView: UIView {
 		setupSubscriptions()
 	}
 
-	override func layoutSubviews() {
-		super.layoutSubviews()
-		layoutUI()
-	}
-
 	// ! Private
 
 	private func setupSubscriptions() {
@@ -72,6 +66,8 @@ final class WeatherView: UIView {
 		[sunriseImageView, sunriseLabel, sunsetImageView, sunsetLabel].forEach {
 			sunriseSunsetStackView.addArrangedSubview($0)
 		}
+
+		layoutUI()
 	}
 
 	private func layoutUI() {
@@ -107,15 +103,13 @@ final class WeatherView: UIView {
 		let label = UILabel()
 		return label
 	}
-
 }
 
+// ! Public
+
 extension WeatherView {
-
-	// ! Public
-
+	/// Function to fetch weather data
 	func updateWeather() {
 		self.weatherViewModel.updateWeather()
 	}
-
 }

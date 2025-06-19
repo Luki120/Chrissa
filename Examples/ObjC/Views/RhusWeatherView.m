@@ -2,7 +2,6 @@
 
 
 @implementation RhusWeatherView {
-
 	UILabel *_weatherLabel;
 	UIStackView *_sunriseSunsetStackView;
 	UIImageView *_sunriseImageView;
@@ -10,13 +9,11 @@
 	UILabel *_sunriseLabel;
 	UILabel *_sunsetLabel;
 	RhusWeatherViewViewModel *_viewModel;
-
 }
 
 // ! Lifecycle
 
 - (id)init {
-
 	self = [super init];
 	if(!self) return nil;
 
@@ -24,13 +21,11 @@
 	if(!_viewModel) _viewModel = [RhusWeatherViewViewModel new];
 
 	return self;
-
 }
 
 // ! Private
 
 - (void)_setupUI {
-
 	self.translatesAutoresizingMaskIntoConstraints = NO;
 
 	if(!_weatherLabel) {
@@ -61,13 +56,10 @@
 	for(UIView *view in @[_sunriseImageView, _sunriseLabel, _sunsetImageView, _sunsetLabel])
 		[_sunriseSunsetStackView addArrangedSubview: view];
 
+	[self _layoutUI];
 }
 
-
-- (void)layoutSubviews {
-
-	[super layoutSubviews];
-
+- (void)_layoutUI {
 	[NSLayoutConstraint activateConstraints:@[
 		[_weatherLabel.topAnchor constraintEqualToAnchor: self.topAnchor],
 		[_weatherLabel.bottomAnchor constraintEqualToAnchor: self.bottomAnchor],
@@ -81,14 +73,12 @@
 	for(UIImageView *imageView in @[_sunriseImageView, _sunsetImageView]) {
 		[imageView.widthAnchor constraintEqualToConstant: 25].active = YES;
 		[imageView.heightAnchor constraintEqualToConstant: 25].active = YES;
-	}
-
+	}	
 }
 
 // ! Reusable
 
 - (UIImageView *)_createImageViewWithImage:(UIImage *)image {
-
 	UIImageView *imageView = [UIImageView new];
 	imageView.image = image;
 	imageView.tintColor = UIColor.whiteColor;
@@ -96,24 +86,18 @@
 	imageView.clipsToBounds = YES;
 	imageView.translatesAutoresizingMaskIntoConstraints = NO;
 	return imageView;
-
 }
 
-
 - (UILabel *)_createLabel {
-
 	UILabel *label = [UILabel new];
 	return label;
-
 }
 
 @end
 
-
 @implementation RhusWeatherView (Public)
 
 - (void)updateWeather {
-
 	[_viewModel updateWeather: ^(NSString *weatherText, NSString *sunriseText, NSString *sunsetText) {
 		dispatch_async(dispatch_get_main_queue(), ^{
 			_weatherLabel.text = weatherText;
@@ -121,7 +105,6 @@
 			_sunsetLabel.text = sunsetText;
 		});
 	}];
-
 }
 
 @end

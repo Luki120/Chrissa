@@ -4,14 +4,13 @@ import UIKit
 import protocol SwiftUI.View
 import class SwiftUI.UIHostingController
 
-
 private var weatherViewViewModel: WeatherViewViewModel!
 
 class SBFLockScreenDateVCHook: ClassHook<UIViewController> {
-
 	static let targetName = "SBFLockScreenDateViewController"
 
-	@Property(.nonatomic, .retain) private var _weatherViewViewModel = WeatherViewViewModel()
+	@Property(.nonatomic, .retain)
+	private var _weatherViewViewModel = WeatherViewViewModel()
 
 	func viewDidLoad() {
 		orig.viewDidLoad()
@@ -29,22 +28,18 @@ class SBFLockScreenDateVCHook: ClassHook<UIViewController> {
 
 		weatherViewViewModel = _weatherViewViewModel
 	}
-
 }
 
 class CSCoverSheetVCHook: ClassHook<UIViewController> {
-
 	static let targetName = "CSCoverSheetViewController"
 
 	func viewWillAppear(_ animated: Bool) {
 		orig.viewWillAppear(animated)
 		weatherViewViewModel.updateWeather()
 	}
-
 }
 
 class SBBacklightControllerHook: ClassHook<NSObject> {
-
 	static let targetName = "SBBacklightController"
 
 	func turnOnScreenFullyWithBacklightSource(_ source: Int) {
@@ -53,13 +48,11 @@ class SBBacklightControllerHook: ClassHook<NSObject> {
 		if !SBLockScreenManager.sharedInstance().isLockScreenVisible() { return }
 		NotificationCenter.default.post(name: .didRefreshWeatherDataNotification, object: nil)
 	}
-
 }
 
+/// Custom `UIHostingController` subclass to show on the LS
 final class HostingController<Content>: UIHostingController<Content> where Content: View {
-
 	override func _canShowWhileLocked() -> Bool {
 		return true
 	}
-
 }

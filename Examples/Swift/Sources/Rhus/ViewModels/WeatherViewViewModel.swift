@@ -1,29 +1,39 @@
 import Chrissa
 import Combine
 
-
+/// View model class for `WeatherView`
 final class WeatherViewViewModel: ObservableObject {
-
 	@Published private(set) var weatherText = ""
 	@Published private(set) var sunriseText = ""
 	@Published private(set) var sunsetText = ""
 
+	// ! Private
+
 	private var lastRefreshDate: Date = .distantPast
 	private var updateWeatherSubscription: AnyCancellable?
 
-	static private let dateFormatter: DateFormatter = {
+	private static let dateFormatter: DateFormatter = {
 		let formatter = DateFormatter()
 		formatter.dateFormat = "HH:mm"
 		return formatter
 	}()
 
-	static private let measurementFormatter: MeasurementFormatter = {
+	private static let measurementFormatter: MeasurementFormatter = {
 		let formatter = MeasurementFormatter()
 		formatter.numberFormatter.numberStyle = .decimal
 		formatter.numberFormatter.maximumFractionDigits = 0
 		return formatter
 	}()
 
+	private func shouldRefresh() -> Bool {
+		return -lastRefreshDate.timeIntervalSinceNow > 300
+	}
+}
+
+// ! Public
+
+extension WeatherViewViewModel {
+	/// Function to fetch weather data
 	func updateWeather() {
 		guard shouldRefresh() else { return }
 		updateWeatherSubscription = nil
@@ -58,10 +68,5 @@ final class WeatherViewViewModel: ObservableObject {
 		}
 
 		lastRefreshDate = Date()
-	}
-
-	private func shouldRefresh() -> Bool {
-		return -lastRefreshDate.timeIntervalSinceNow > 300
-	}
-
+	}	
 }

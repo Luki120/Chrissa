@@ -11,7 +11,6 @@
 }
 
 - (id)init {
-
 	self = [super init];
 	if(!self) return nil;
 
@@ -20,18 +19,14 @@
 	_lastRefreshDate = [NSDate distantPast];
 
 	return self;
-
 }
 
-
 - (void)updateWeather:(void (^)(NSString *, NSString *, NSString *))completion {
-
 	if(![self _shouldRefresh]) return;
 
 	NSError *weatherError;
 
 	BOOL success = [[CHWeatherService sharedInstance] fetchWeatherAndReturnError:&weatherError completion:^(CHWeather *weather, NSString *locationName) {
-
 		NSMeasurement *measurement = [[NSMeasurement alloc]
 			initWithDoubleValue:weather.current.temperature
 			unit:[NSUnitTemperature celsius]
@@ -48,21 +43,16 @@
 		NSString *unicode = [self _unicodeForCondition:weather.current.weatherCode isDay: weather.current.isDay];
 
 		_weatherText = [NSString stringWithFormat: @"%@ %@ | %@", unicode, locationName, temperature];
-
 		completion(_weatherText, _sunriseText, _sunsetText);
-
 	}];
 
 	if(!success) NSLog(@"CHRISSA: %@", weatherError.localizedDescription);
-
 	_lastRefreshDate = [NSDate new];
-
 }
 
 // ! Private
 
 - (void)_setupFormatters {
-
 	if(!_dateFormatter) {
 		_dateFormatter = [NSDateFormatter new];
 		_dateFormatter.dateFormat = @"HH:mm";
@@ -73,18 +63,13 @@
 		_measurementFormatter.numberFormatter.numberStyle = NSNumberFormatterDecimalStyle;
 		_measurementFormatter.numberFormatter.maximumFractionDigits = 0;
 	}
-
 }
 
 - (BOOL)_shouldRefresh {
-
 	return -[_lastRefreshDate timeIntervalSinceNow] > 300;
-
 }
 
-
 - (NSString *)_unicodeForCondition:(Condition)condition isDay:(BOOL)isDay {
-
 	switch(condition) {
 		case ConditionClearSky:
 		case ConditionMainlyClear:
@@ -122,7 +107,6 @@
 		case ConditionThunderstormWithSlightHail:
 		case ConditionThunderstormWithHeavyHail: return @"⛈";
 	}
-
 }
 
 @end

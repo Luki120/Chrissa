@@ -1,8 +1,6 @@
 import SwiftUI
 
-
 struct WeatherView: View {
-
 	@ObservedObject
 	private(set) var viewModel: WeatherViewViewModel
 
@@ -33,5 +31,4 @@ struct WeatherView: View {
 			Text(text)
 		}
 	}
-
 }
