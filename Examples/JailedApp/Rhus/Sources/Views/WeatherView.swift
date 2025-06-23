@@ -9,10 +9,10 @@ struct WeatherView: View {
 		ScrollView {
 			VStack(spacing: 18) {
 				CurrentWeatherView()
-					.background(
+					.background {
 						RoundedRectangle(cornerRadius: 20, style: .continuous)
 							.fill(Color(.secondarySystemGroupedBackground))
-					)
+					}
 
 				HourlyWeatherView()
 				SunriseSunsetView()
@@ -85,10 +85,10 @@ struct WeatherView: View {
 						}
 					}
 					.padding()
-					.background(
+					.background {
 						RoundedRectangle(cornerRadius: 10, style: .continuous)
 							.fill(Color(.secondarySystemGroupedBackground))
-					)
+					}
 				}
 			}
 		}
