@@ -81,7 +81,7 @@ struct WeatherView: View {
 								.renderingMode(.original)
 								.foregroundColor(.blue)
 
-							Text(precipitationProbability.formatted(.percent))
+							Text(precipitationProbability.formatted(.percent.scale(1)))
 						}
 					}
 					.padding()
